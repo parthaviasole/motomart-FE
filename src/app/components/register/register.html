@@ -1,0 +1,62 @@
+<div class="grid grid-nogutter min-h-screen">
+    <!-- Left Panel: Visible on large screens -->
+    <div class="hidden lg:flex col-6 auth-bg flex-column justify-content-center align-items-center text-center p-6">
+        <i class="pi pi-cog text-white text-8xl mb-4"></i>
+        <h1 class="text-white text-6xl font-bold">Moto Parts</h1>
+        <p class="text-white text-xl mt-2">Your one-stop shop for high-quality motorcycle parts.</p>
+    </div>
+
+    <!-- Right Panel: Form -->
+    <div class="col-12 lg:col-6 flex flex-column justify-content-center align-items-center p-4 surface-ground">
+        <p-toast></p-toast>
+        <div class="w-full md:w-8 xl:w-6 p-fluid">
+            <div class="text-center mb-5">
+                <h1 class="text-4xl font-bold text-900">Create Your Account</h1>
+                <p class="text-600">Join us to find the best parts for your bike.</p>
+            </div>
+
+            <form #registerForm="ngForm" (ngSubmit)="onRegister()" class="flex flex-column gap-4">
+                <p-floatlabel>
+                    <input pInputText id="name" name="name" [(ngModel)]="registerData.name" required #name="ngModel" class="w-full" />
+                    <label for="name">Full Name</label>
+                </p-floatlabel>
+                <small class="p-error -mt-3" *ngIf="name.invalid && name.touched">Name is required.</small>
+
+                <p-floatlabel>
+                    <input pInputText id="email" type="email" name="email" [(ngModel)]="registerData.email" required #email="ngModel" class="w-full" />
+                    <label for="email">Email</label>
+                </p-floatlabel>
+                <small class="p-error -mt-3" *ngIf="email.invalid && email.touched">Email is required.</small>
+
+                <p-floatlabel>
+                    <input pInputText id="phone" name="phoneNumber" [(ngModel)]="registerData.phoneNumber" required #phone="ngModel" class="w-full" />
+                    <label for="phone">Phone Number</label>
+                </p-floatlabel>
+                <small class="p-error -mt-3" *ngIf="phone.invalid && phone.touched">Phone number is required.</small>
+
+                <p-floatlabel>
+                    <p-password id="password" name="password" [(ngModel)]="registerData.password" [toggleMask]="true" 
+                        required #password="ngModel" [inputStyle]="{ width: '100%' }" [style]="{ width: '100%' }"
+                        [feedback]="false"></p-password>
+                    <label for="password">Password</label>
+                </p-floatlabel>
+                <small class="p-error -mt-3" *ngIf="password.invalid && password.touched">Password is required.</small>
+
+                <p-floatlabel>
+                    <p-password id="confirmPassword" name="confirmPassword" [(ngModel)]="registerData.confirmPassword" 
+                        [feedback]="false" [toggleMask]="true" required #confirmPassword="ngModel"
+                        [inputStyle]="{ width: '100%' }" [style]="{ width: '100%' }"></p-password>
+                    <label for="confirmPassword">Confirm Password</label>
+                </p-floatlabel>
+                <small class="p-error -mt-3" *ngIf="confirmPassword.invalid && confirmPassword.touched">Confirmation is required.</small>
+
+                <p-button label="Create Account" type="submit" [loading]="loading" [disabled]="registerForm.invalid" class="w-full mt-4" styleClass="w-full p-3 font-bold"></p-button>
+
+                <div class="text-center mt-4 text-600">
+                    <span>Already have an account? </span>
+                    <a routerLink="/login" class="text-primary no-underline font-bold hover:underline">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

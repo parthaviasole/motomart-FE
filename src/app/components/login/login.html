@@ -1,0 +1,46 @@
+<div class="grid grid-nogutter min-h-screen">
+    <!-- Left Panel: Visible on large screens -->
+    <div class="hidden lg:flex col-6 auth-bg flex-column justify-content-center align-items-center text-center p-6">
+        <i class="pi pi-cog text-white text-8xl mb-4"></i>
+        <h1 class="text-white text-6xl font-bold">Moto Parts</h1>
+        <p class="text-white text-xl mt-2">Your one-stop shop for high-quality motorcycle parts.</p>
+    </div>
+
+    <!-- Right Panel: Form -->
+    <div class="col-12 lg:col-6 flex flex-column justify-content-center align-items-center p-4 surface-ground">
+        <p-toast></p-toast>
+        <div class="w-full md:w-8 xl:w-6 p-fluid">
+            <div class="text-center mb-5">
+                <h1 class="text-4xl font-bold text-900">Welcome Back!</h1>
+                <p class="text-600">Log in to continue your journey with Moto Parts.</p>
+            </div>
+
+            <form #loginForm="ngForm" (ngSubmit)="onLogin()" class="flex flex-column gap-4">
+                <p-floatlabel>
+                    <input pInputText id="email" type="email" name="email" [(ngModel)]="loginData.email" required #email="ngModel" class="w-full" />
+                    <label for="email">Email</label>
+                </p-floatlabel>
+                <small class="p-error -mt-3" *ngIf="email.invalid && email.touched">Email is required.</small>
+
+                <p-floatlabel>
+                    <p-password id="password" name="password" [(ngModel)]="loginData.password" [toggleMask]="true" 
+                        required #password="ngModel" [inputStyle]="{ width: '100%' }" [style]="{ width: '100%' }"
+                        [feedback]="false"></p-password>
+                    <label for="password">Password</label>
+                </p-floatlabel>
+                <small class="p-error -mt-3" *ngIf="password.invalid && password.touched">Password is required.</small>
+
+                <div class="flex justify-content-end">
+                    <a routerLink="/forgot-password" class="text-primary no-underline font-semibold hover:underline text-sm">Forgot Password?</a>
+                </div>
+
+                <p-button label="Login" type="submit" [loading]="loading" [disabled]="loginForm.invalid" class="w-full mt-2" styleClass="w-full p-3 font-bold"></p-button>
+
+                <div class="text-center mt-4 text-600">
+                    <span>Don't have an account? </span>
+                    <a routerLink="/register" class="text-primary no-underline font-bold hover:underline">Register</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
