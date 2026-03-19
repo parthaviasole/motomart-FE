@@ -13,13 +13,7 @@
   z-index: 1000;
 }
 
-@media screen and (max-width: 480px) {
-  .bottom-nav {
-    min-width: 200px;
-    padding: 0.25rem;
-    bottom: 0.5rem;
-  }
-  
+@media screen and (max-width: 480px) { 
   .bottom-nav a {
     padding: 0.5rem;
   }

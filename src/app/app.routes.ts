@@ -10,5 +10,6 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'admin', loadChildren: () => import('./admin.routes').then(m => m.adminRoutes) },
+  { path: '', loadChildren: () => import('./user.routes').then(m => m.userRoutes) },
   { path: '', redirectTo: 'login', pathMatch: 'full' }
 ];

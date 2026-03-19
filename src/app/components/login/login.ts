@@ -57,7 +57,7 @@ export class LoginComponent extends AutoUnsubscribeComponent {
           if (res.role === 'Admin') {
             this.router.navigate(['/admin']);
           } else {
-            this.router.navigate(['/']);
+            this.router.navigate(['/dashboard']);
           }
         }, 1000);
       },
