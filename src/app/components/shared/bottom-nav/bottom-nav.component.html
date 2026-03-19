@@ -1,0 +1,12 @@
+<nav class="bottom-nav">
+  <ul>
+    <li *ngFor="let link of navLinks">
+      <a [routerLink]="link.path" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <span>
+          <i [class]="link.icon"></i>
+          <span>{{ link.label }}</span>
+        </span>
+      </a>
+    </li>
+  </ul>
+</nav>
