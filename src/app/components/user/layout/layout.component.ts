@@ -23,7 +23,7 @@ import { BottomNavComponent } from '../../shared/bottom-nav/bottom-nav.component
     .user-content {
       flex: 1;
       overflow-y: auto;
-      padding: 2rem;
+      padding: 0.5rem;
       padding-bottom: 5rem; /* Space for the bottom navbar */
     }
   `]

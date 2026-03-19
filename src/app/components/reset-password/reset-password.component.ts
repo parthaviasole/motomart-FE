@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -19,7 +19,6 @@ import { takeUntil } from 'rxjs';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     CardModule,
     InputTextModule,
     ButtonModule,

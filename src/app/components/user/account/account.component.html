@@ -1,4 +1,109 @@
-<div class="user-account">
-  <h1>Your Account</h1>
-  <p>Manage your profile and settings.</p>
+<div class="profile-container">
+  <p-toast></p-toast>
+  <div class="header">
+    <h1>{{ isEditMode ? 'Edit Profile' : 'Profile' }}</h1>
+    <button class="more-btn" *ngIf="!isEditMode"><i class="pi pi-ellipsis-h"></i></button>
+    <button class="cancel-btn" *ngIf="isEditMode" (click)="cancelEdit()">Cancel</button>
+  </div>
+
+  <!-- Profile Card (View Mode) -->
+  <div class="profile-card" *ngIf="!isEditMode">
+    <div class="profile-info">
+      <div class="avatar-container">
+        <img [src]="'https://api.dicebear.com/7.x/avataaars/svg?seed=' + (user?.name || 'Olivia')" alt="Avatar">
+      </div>
+      <div class="user-details">
+        <h3>{{ user?.name || 'User' }}</h3>
+        <p>{{ user?.email }}</p>
+      </div>
+    </div>
+    <button class="edit-btn" (click)="toggleEditMode()"><i class="pi pi-pencil"></i></button>
+  </div>
+
+  <!-- Edit Form (Edit Mode) -->
+  <div class="edit-section" *ngIf="isEditMode">
+    <div class="edit-card">
+
+      <form #editForm="ngForm" (ngSubmit)="onUpdate()">
+        <p-floatlabel class="mb-4">
+          <input pInputText id="name" name="name" [(ngModel)]="editData.name" required #name="ngModel" class="w-full" />
+          <label for="name">Full Name</label>
+        </p-floatlabel>
+
+        <p-floatlabel class="mb-4">
+          <input pInputText id="email" name="email" [(ngModel)]="editData.email" required email #email="ngModel" class="w-full" />
+          <label for="email">Email</label>
+        </p-floatlabel>
+
+        <p-floatlabel class="mb-4">
+          <input pInputText id="phoneNumber" name="phoneNumber" [(ngModel)]="editData.phoneNumber" class="w-full" />
+          <label for="phoneNumber">Phone Number</label>
+        </p-floatlabel>
+
+        <p-button label="Update Profile" type="submit" [loading]="loading" [disabled]="editForm.invalid" class="w-full" styleClass="w-full p-3 font-bold update-btn"></p-button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Menu Sections (Hidden in Edit Mode) -->
+  <ng-container *ngIf="!isEditMode">
+    <!-- First Menu Section -->
+    <div class="menu-section">
+      <div class="menu-item">
+        <div class="item-left">
+          <div class="icon-bg"><i class="pi pi-map-marker"></i></div>
+          <div class="item-text">
+            <span class="title">Address Book</span>
+            <span class="subtitle">Manage your saved addresses</span>
+          </div>
+        </div>
+        <i class="pi pi-chevron-right"></i>
+      </div>
+
+      <div class="menu-item">
+        <div class="item-left">
+          <div class="icon-bg"><i class="pi pi-history"></i></div>
+          <div class="item-text">
+            <span class="title">Order History</span>
+            <span class="subtitle">View your past orders</span>
+          </div>
+        </div>
+        <i class="pi pi-chevron-right"></i>
+      </div>
+
+      <div class="menu-item">
+        <div class="item-left">
+          <div class="icon-bg"><i class="pi pi-bell"></i></div>
+          <div class="item-text">
+            <span class="title">Notifications</span>
+            <span class="subtitle">Stay updated on your orders</span>
+          </div>
+        </div>
+        <i class="pi pi-chevron-right"></i>
+      </div>
+    </div>
+
+    <!-- Second Menu Section -->
+    <div class="menu-section">
+      <div class="menu-item">
+        <div class="item-left">
+          <div class="icon-bg"><i class="pi pi-phone"></i></div>
+          <div class="item-text">
+            <span class="title">Contact Us</span>
+          </div>
+        </div>
+        <i class="pi pi-chevron-right"></i>
+      </div>
+
+      <div class="menu-item" (click)="logout()">
+        <div class="item-left">
+          <div class="icon-bg logout-icon"><i class="pi pi-sign-out"></i></div>
+          <div class="item-text">
+            <span class="title">Log out</span>
+          </div>
+        </div>
+        <i class="pi pi-chevron-right"></i>
+      </div>
+    </div>
+  </ng-container>
 </div>
