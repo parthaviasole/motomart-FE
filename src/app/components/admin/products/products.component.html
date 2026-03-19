@@ -14,8 +14,7 @@
       [totalRecords]="totalRecords"
       [loading]="loading"
       styleClass="p-datatable-custom"
-      responsiveLayout="stack"
-      breakpoint="960px"
+      responsiveLayout="scroll"
     >
       <ng-template pTemplate="header">
         <tr>
@@ -36,11 +35,78 @@
             </div>
           </td>
           <td class="price-cell">{{ product.price | currency }}</td>
-          <td>{{ product.quantity }} units</td>
-          <td>{{ product.createdAt | date:'yyyy-MM-dd' }}</td>
+          <td>{{ product.quantity }} ml</td>
+          <td>{{ product.createdAt | date:'yyyy-M-d' }}</td>
         </tr>
       </ng-template>
     </p-table>
+
+    <!-- Add Product Dialog -->
+    <p-dialog header="Add New Product" [(visible)]="displayAddDialog" [modal]="true" [style]="{width: '500px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
+      <ng-template pTemplate="content">
+        <div class="form-grid">
+          <div class="field mb-5 mt-2">
+            <p-floatLabel>
+              <input type="text" pInputText id="name" [(ngModel)]="newProduct.name" required />
+              <label for="name">Product Name</label>
+            </p-floatLabel>
+          </div>
+
+          <div class="field mb-5">
+            <p-floatLabel>
+              <input type="text" pInputText id="type" [(ngModel)]="newProduct.type" required />
+              <label for="type">Category / Type</label>
+            </p-floatLabel>
+          </div>
+
+          <div class="field-group mb-5">
+            <div class="field">
+              <p-floatLabel>
+                <input type="number" pInputText id="price" [(ngModel)]="newProduct.price" required />
+                <label for="price">Price ($)</label>
+              </p-floatLabel>
+            </div>
+            <div class="field">
+              <p-floatLabel>
+                <input type="number" pInputText id="quantity" [(ngModel)]="newProduct.quantity" required />
+                <label for="quantity">Stock Quantity</label>
+              </p-floatLabel>
+            </div>
+          </div>
+
+          <div class="field mb-5">
+            <p-floatLabel>
+              <textarea id="details" pTextarea [(ngModel)]="newProduct.details" rows="3" autoResize="false"></textarea>
+              <label for="details">Product Description</label>
+            </p-floatLabel>
+          </div>
+
+          <div class="field mb-2">
+            <div class="upload-controller" [class.has-file]="selectedFile">
+              <div class="upload-label">Product Image</div>
+              <div class="upload-input-wrapper">
+                <p-fileUpload mode="basic" name="demo[]" accept="image/*" maxFileSize="1000000" 
+                  (onSelect)="onFileSelect($event)" 
+                  chooseLabel="Browse Image" 
+                  styleClass="p-button-secondary p-button-outlined custom-upload-btn">
+                </p-fileUpload>
+                <div class="selected-file-name" *ngIf="selectedFile">
+                  <i class="pi pi-file"></i>
+                  <span>{{selectedFile.name}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="dialog-footer">
+          <button pButton label="Cancel" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayAddDialog = false"></button>
+          <button pButton label="Create Product" icon="pi pi-check" class="p-button-primary" [loading]="uploading" (click)="saveProduct()"></button>
+        </div>
+      </ng-template>
+    </p-dialog>
 
     <div class="table-footer-custom">
       <div class="pagination-controls">

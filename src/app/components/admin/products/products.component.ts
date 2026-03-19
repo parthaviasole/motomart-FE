@@ -4,11 +4,30 @@ import { Product, ProductService, PagedResult } from '../../../services/product.
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-admin-products',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, InputTextModule],
+  imports: [
+    CommonModule, 
+    TableModule, 
+    ButtonModule, 
+    InputTextModule, 
+    DialogModule, 
+    FileUploadModule, 
+    FormsModule, 
+    ToastModule, 
+    FloatLabelModule, 
+    TextareaModule
+  ],
+  providers: [MessageService],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
 })
@@ -22,12 +41,65 @@ export class AdminProductsComponent implements OnInit {
   pageSize = 10;
   loading = true;
 
+  // Add Product Dialog
+  displayAddDialog = false;
+  newProduct: Partial<Product> = {
+    name: '',
+    type: '',
+    price: 0,
+    quantity: 0,
+    details: ''
+  };
+  selectedFile: File | null = null;
+  uploading = false;
+
   constructor(
     private productService: ProductService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {}
+
+  showAddProductDialog() {
+    this.newProduct = { name: '', type: '', price: 0, quantity: 0, details: '' };
+    this.selectedFile = null;
+    this.displayAddDialog = true;
+  }
+
+  onFileSelect(event: any) {
+    this.selectedFile = event.files[0];
+  }
+
+  saveProduct() {
+    if (!this.newProduct.name || !this.selectedFile) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill all required fields and select an image' });
+      return;
+    }
+
+    this.uploading = true;
+    this.productService.uploadImage(this.selectedFile).subscribe({
+      next: (res) => {
+        const productToCreate = { ...this.newProduct, imageUrl: res.url } as Product;
+        this.productService.createProduct(productToCreate).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product created successfully' });
+            this.displayAddDialog = false;
+            this.uploading = false;
+            this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize }); // Refresh grid
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create product' });
+            this.uploading = false;
+          }
+        });
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload image' });
+        this.uploading = false;
+      }
+    });
+  }
 
   loadProducts(event: any) {
     this.loading = true;
