@@ -23,6 +23,8 @@ import { BottomNavComponent } from '../../shared/bottom-nav/bottom-nav.component
     .admin-content {
       flex: 1;
       overflow-y: auto;
+      padding: 2rem;
+      padding-bottom: 5rem; /* Space for the bottom navbar */
     }
   `]
 })
