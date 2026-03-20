@@ -4,6 +4,7 @@ import { UserHomeComponent } from './components/user/home/home.component';
 import { UserProductsComponent } from './components/user/products/products.component';
 import { UserOrdersComponent } from './components/user/orders/orders.component';
 import { UserAccountComponent } from './components/user/account/account.component';
+import { AddressBookComponent } from './components/user/address-book/address-book.component';
 
 export const userRoutes: Routes = [
   {
@@ -14,6 +15,7 @@ export const userRoutes: Routes = [
       { path: 'products', component: UserProductsComponent },
       { path: 'orders', component: UserOrdersComponent },
       { path: 'account', component: UserAccountComponent },
+      { path: 'address-book', component: AddressBookComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }

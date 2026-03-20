@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth';
 import { UserService, User } from '../../../services/user.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,6 +16,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
   imports: [
     CommonModule, 
     FormsModule, 
+    RouterModule,
     ToastModule, 
     InputTextModule, 
     ButtonModule, 
