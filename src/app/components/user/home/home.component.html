@@ -11,9 +11,9 @@
       <h1 *ngIf="!selectedCategory && !searchTerm">Catalog</h1>
       <p class="subtitle" *ngIf="!selectedCategory && !searchTerm">Find the best parts for your bike</p>
     </div>
-    <div class="notification-badge">
-      <i class="pi pi-bell"></i>
-      <span class="dot"></span>
+    <div class="notification-badge" routerLink="/cart" style="cursor: pointer;">
+      <i class="pi pi-shopping-cart"></i>
+      <span class="badge-dot" *ngIf="cartCount > 0">{{ cartCount }}</span>
     </div>
   </div>
 
@@ -69,7 +69,7 @@
         <h3>{{ product.name }}</h3>
         <div class="price-row">
           <span class="price">${{ product.price }}</span>
-          <button class="add-btn"><i class="pi pi-plus"></i></button>
+          <button class="add-btn" (click)="addToCart(product.id)"><i class="pi pi-plus"></i></button>
         </div>
       </div>
     </div>

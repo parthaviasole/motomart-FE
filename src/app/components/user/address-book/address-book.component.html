@@ -8,20 +8,20 @@
   </div>
 
   <div class="address-list" *ngIf="!loading">
-    <div class="address-card" *ngFor="let addr of addresses" [class.default]="addr.isDefault">
+    <div class="address-card" *ngFor="let addr of addresses" [class.default]="addr.IsDefault || addr.isDefault">
       <div class="address-header">
-        <div class="default-badge" *ngIf="addr.isDefault">Default</div>
+        <div class="default-badge" *ngIf="addr.IsDefault || addr.isDefault">Default</div>
         <div class="actions">
           <button (click)="editAddress(addr)"><i class="pi pi-pencil"></i></button>
-          <button class="delete" (click)="deleteAddress(addr.id)"><i class="pi pi-trash"></i></button>
+          <button class="delete" (click)="deleteAddress(addr.Id || addr.id)"><i class="pi pi-trash"></i></button>
         </div>
       </div>
       <div class="address-content">
-        <p class="street">{{ addr.street }}</p>
-        <p class="location">{{ addr.city }}, {{ addr.state }} {{ addr.postalCode }}</p>
-        <p class="country">{{ addr.country }}</p>
+        <p class="street">{{ addr.Street || addr.street }}</p>
+        <p class="location">{{ addr.City || addr.city }}, {{ addr.State || addr.state }} {{ addr.PostalCode || addr.postalCode }}</p>
+        <p class="country">{{ addr.Country || addr.country }}</p>
       </div>
-      <button class="set-default-btn" *ngIf="!addr.isDefault" (click)="setDefault(addr.id)">Set as Default</button>
+      <button class="set-default-btn" *ngIf="!(addr.IsDefault || addr.isDefault)" (click)="setDefault(addr.Id || addr.id)">Set as Default</button>
     </div>
 
     <div class="empty-state" *ngIf="addresses.length === 0">

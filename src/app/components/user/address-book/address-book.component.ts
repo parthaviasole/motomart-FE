@@ -70,9 +70,9 @@ export class AddressBookComponent implements OnInit {
         this.cdr.detectChanges();
       })
     ).subscribe({
-      next: (data: Address[]) => {
-        console.log('Data received in component:', data);
-        this.addresses = data;
+      next: (res: any) => {
+        console.log('Data received in component:', res);
+        this.addresses = Array.isArray(res) ? res : (res.value || []);
         this.cdr.detectChanges();
       },
       error: (err) => {

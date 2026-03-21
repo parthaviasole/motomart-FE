@@ -28,7 +28,7 @@ export class BottomNavComponent implements OnInit {
       this.navLinks = [
         { path: '/dashboard', icon: 'pi pi-home', label: 'Home' },
         { path: '/products', icon: 'pi pi-box', label: 'Products' },
-        { path: '/orders', icon: 'pi pi-shopping-cart', label: 'Orders' },
+        { path: '/orders', icon: 'pi pi-list', label: 'Orders' },
         { path: '/account', icon: 'pi pi-user', label: 'Account' }
       ];
     }

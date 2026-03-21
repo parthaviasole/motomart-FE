@@ -1,4 +1,59 @@
-<div class="orders-container">
-  <h2>Admin Orders</h2>
-  <p>Manage your customer orders here.</p>
+<div class="admin-orders-container">
+  <h1>Order Management</h1>
+
+  <p-table [value]="orders" [loading]="loading" [rowHover]="true" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-order>
+      <tr>
+        <td>{{ (order.id || order.Id || '').substring(0, 8) }}...</td>
+        <td>
+          <strong>{{ order.user?.name || order.User?.name || 'Guest' }}</strong><br>
+          <small>{{ order.user?.email || order.User?.email }}</small>
+        </td>
+        <td>{{ (order.createdAt || order.CreatedAt) | date:'short' }}</td>
+        <td>${{ order.totalAmount || order.TotalAmount }}</td>
+        <td>
+          <p-tag [value]="order.status || order.Status" [severity]="getSeverity(order.status || order.Status)"></p-tag>
+        </td>
+        <td>
+          <button pButton label="Start Delivery" icon="pi pi-truck" class="p-button-sm p-button-warning" 
+                  *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)"></button>
+          
+          <button pButton label="Verify OTP" icon="pi pi-key" class="p-button-sm p-button-success" 
+                  *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)"></button>
+          
+          <span *ngIf="(order.status || order.Status) === 'Delivered'" class="text-success">
+            <i class="pi pi-check-circle"></i> Completed
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div class="pagination-wrapper mt-4" *ngIf="totalCount > pageSize">
+    <p-paginator (onPageChange)="onPageChange($event)" [rows]="pageSize" [totalRecords]="totalCount"></p-paginator>
+  </div>
+
+  <!-- OTP Verification Dialog -->
+  <p-dialog header="Verify Delivery OTP" [(visible)]="displayOtpDialog" [modal]="true" [style]="{width: '350px'}">
+    <div class="p-fluid">
+      <div class="field">
+        <label for="otp">Enter OTP sent to user</label>
+        <input type="text" pInputText id="otp" [(ngModel)]="otpInput" maxlength="6" placeholder="######">
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+      <button pButton label="Resend OTP" icon="pi pi-refresh" class="p-button-text p-button-secondary" (click)="resendOtp()"></button>
+      <button pButton label="Confirm" icon="pi pi-check" (click)="verifyOtp()" [disabled]="otpInput.length < 6"></button>
+    </ng-template>
+  </p-dialog>
 </div>

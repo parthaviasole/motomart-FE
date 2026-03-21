@@ -1,4 +1,16 @@
 <div class="products-container">
+  <!-- Header Section -->
+  <div class="products-header">
+    <div class="title-section">
+      <h1>Products</h1>
+      <p class="subtitle">Explore our wide range of bike parts</p>
+    </div>
+    <div class="notification-badge" routerLink="/cart" style="cursor: pointer;">
+      <i class="pi pi-shopping-cart"></i>
+      <span class="badge-dot" *ngIf="cartCount > 0">{{ cartCount }}</span>
+    </div>
+  </div>
+
   <!-- Search Section -->
   <div class="search-section">
     <div class="search-input-wrapper">
@@ -39,7 +51,7 @@
         <h3>{{ product.name }}</h3>
         <div class="price-row">
           <span class="price">${{ product.price }}</span>
-          <button class="add-btn"><i class="pi pi-plus"></i></button>
+          <button class="add-btn" (click)="addToCart(product.id)"><i class="pi pi-plus"></i></button>
         </div>
       </div>
     </div>

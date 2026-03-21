@@ -1,0 +1,17 @@
+.admin-orders-container {
+  padding: 20px;
+}
+
+.text-success {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+.field {
+  margin-top: 15px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 5px;
+}

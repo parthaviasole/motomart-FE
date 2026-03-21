@@ -11,6 +11,15 @@ export interface Address {
   postalCode: string;
   country: string;
   isDefault: boolean;
+  // Fallback for PascalCase from API
+  Id?: string;
+  UserId?: string;
+  Street?: string;
+  City?: string;
+  State?: string;
+  PostalCode?: string;
+  Country?: string;
+  IsDefault?: boolean;
 }
 
 export interface AddressCreateDto {
