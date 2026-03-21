@@ -4,7 +4,12 @@
     <p class="subtitle">View and track your recent purchases</p>
   </div>
 
-  <div class="orders-grid" *ngIf="orders.length > 0">
+  <div class="loading-state" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+    <p>Loading orders...</p>
+  </div>
+
+  <div class="orders-grid" *ngIf="!loading && orders.length > 0">
     <div class="order-card" *ngFor="let order of orders">
       <div class="order-header">
         <div class="order-meta">
@@ -106,7 +111,7 @@
     </div>
   </p-dialog>
 
-  <div class="empty-orders" *ngIf="orders.length === 0">
+  <div class="empty-orders" *ngIf="!loading && orders.length === 0">
     <i class="pi pi-box" style="font-size: 5rem; color: #ddd"></i>
     <p>No orders yet</p>
     <button pButton label="Start Shopping" routerLink="/products" class="p-button-text"></button>

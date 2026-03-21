@@ -18,7 +18,7 @@ import { MenuItem } from 'primeng/api';
 })
 export class UserOrdersComponent implements OnInit {
   orders: any[] = [];
-  loading: boolean = false;
+  loading: boolean = true;
   totalCount: number = 0;
   pageSize: number = 10;
   currentPage: number = 1;
@@ -53,11 +53,11 @@ export class UserOrdersComponent implements OnInit {
           if (Array.isArray(res)) {
             this.orders = res;
             this.totalCount = res.length;
-          } else if (res && (res.items || res.Items)) {
+          } else if (res) {
+            // Check for both Items (PascalCase) and items (camelCase)
             this.orders = res.items || res.Items || [];
-            this.totalCount = res.totalCount || res.TotalCount || 0;
+            this.totalCount = res.totalCount || res.TotalCount || this.orders.length;
           } else {
-            console.warn('Unexpected API response structure:', res);
             this.orders = [];
             this.totalCount = 0;
           }
