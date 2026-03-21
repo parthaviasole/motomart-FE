@@ -69,6 +69,10 @@ export class ProductService {
     return this.http.get<string[]>(`${this.apiUrl}/types`);
   }
 
+  getProductTypesSummary(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/types/summary`);
+  }
+
   uploadImage(file: File): Observable<{ url: string }> {
     const formData = new FormData();
     formData.append('file', file);

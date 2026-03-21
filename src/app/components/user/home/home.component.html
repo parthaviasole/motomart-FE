@@ -1,4 +1,88 @@
-<div class="user-home">
-  <h1>Welcome to Motomart</h1>
-  <p>Your one-stop shop for motorcycle parts.</p>
+<div class="catalog-container">
+  <!-- Header Section -->
+  <div class="catalog-header">
+    <div class="title-section">
+      <div class="flex align-items-center gap-2" *ngIf="selectedCategory || searchTerm">
+        <button class="back-btn-header" (click)="clearCategory()">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <h1>{{ selectedCategory || 'Search' }}</h1>
+      </div>
+      <h1 *ngIf="!selectedCategory && !searchTerm">Catalog</h1>
+      <p class="subtitle" *ngIf="!selectedCategory && !searchTerm">Find the best parts for your bike</p>
+    </div>
+    <div class="notification-badge">
+      <i class="pi pi-bell"></i>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-bar">
+    <div class="search-input-wrapper">
+      <i class="pi pi-search search-icon"></i>
+      <input 
+        type="text" 
+        pInputText 
+        placeholder="Search for products..." 
+        [(ngModel)]="searchTerm" 
+        (keyup.enter)="onSearch()" 
+        class="custom-search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Featured Card (Only on Main Dashboard) -->
+  <div class="featured-card" *ngIf="!selectedCategory && !searchTerm && categories.length > 0">
+    <div class="featured-content">
+      <span class="exclusive-tag">Exclusive</span>
+      <h2>Moto Performance</h2>
+      <p>Upgrade your ride today</p>
+      <button class="shop-now">Shop Now</button>
+    </div>
+    <div class="featured-image">
+      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Moto" alt="Featured">
+    </div>
+  </div>
+
+  <!-- Categories Grid (Default View) -->
+  <div class="categories-grid" *ngIf="!selectedCategory && !searchTerm">
+    <div 
+      *ngFor="let cat of categories" 
+      class="category-card" 
+      (click)="selectCategory(cat.type)"
+    >
+      <span class="category-name">{{ cat.type }}</span>
+    </div>
+  </div>
+
+  <!-- Products Grid (When Category Selected or Searching) -->
+  <div class="product-grid" *ngIf="selectedCategory || searchTerm">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="product-image">
+        <img [src]="product.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product.name" alt="{{ product.name }}">
+        <button class="favorite-btn"><i class="pi pi-heart"></i></button>
+      </div>
+      <div class="product-details">
+        <span class="product-type">{{ product.type }}</span>
+        <h3>{{ product.name }}</h3>
+        <div class="price-row">
+          <span class="price">${{ product.price }}</span>
+          <button class="add-btn"><i class="pi pi-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-container" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #2ecc71"></i>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="products.length === 0 && !loading && (selectedCategory || searchTerm)">
+    <i class="pi pi-box"></i>
+    <p>No products found</p>
+    <button pButton label="Back to Categories" (click)="clearCategory()" class="p-button-text"></button>
+  </div>
 </div>
