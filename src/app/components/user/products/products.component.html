@@ -1,4 +1,58 @@
-<div class="user-products">
-  <h1>Our Products</h1>
-  <p>Explore our wide range of motorcycle parts.</p>
+<div class="products-container">
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-input-wrapper">
+      <i class="pi pi-search search-icon"></i>
+      <input 
+        type="text" 
+        pInputText 
+        placeholder="Search for products..." 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="onSearchChange($event)"
+        (keyup.enter)="onSearch()" 
+        class="custom-search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Categories Section (Horizontal Scroll) -->
+  <div class="category-scroll">
+    <div 
+      *ngFor="let cat of categories" 
+      class="category-pill" 
+      [class.active]="selectedCategory === cat"
+      (click)="selectCategory(cat)"
+    >
+      <span>{{ cat }}</span>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="product-grid" *ngIf="!loading">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="product-image">
+        <img [src]="product.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product.name" alt="{{ product.name }}">
+        <button class="favorite-btn"><i class="pi pi-heart"></i></button>
+      </div>
+      <div class="product-details">
+        <span class="product-type">{{ product.type }}</span>
+        <h3>{{ product.name }}</h3>
+        <div class="price-row">
+          <span class="price">${{ product.price }}</span>
+          <button class="add-btn"><i class="pi pi-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-container" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #2ecc71"></i>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="products.length === 0 && !loading">
+    <i class="pi pi-box"></i>
+    <p>No products found in this category</p>
+  </div>
 </div>
