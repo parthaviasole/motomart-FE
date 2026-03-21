@@ -17,8 +17,8 @@ import { PaginatorModule } from 'primeng/paginator';
   styleUrl: './orders.component.css'
 })
 export class AdminOrdersComponent implements OnInit {
-  orders: Order[] = [];
-  loading: boolean = true;
+  orders: any[] = [];
+  loading: boolean = false;
   totalCount: number = 0;
   pageSize: number = 10;
   pageNumber: number = 1;
