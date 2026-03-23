@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AddressService } from '../../../services/address.service';
@@ -37,31 +37,50 @@ export class UserCheckoutComponent implements OnInit {
     private addressService: AddressService,
     private cartService: CartService,
     private orderService: OrderService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadAddresses();
-    this.cartService.cartItems$.subscribe(items => {
+    this.loadCartData();
+  }
+
+  loadCartData() {
+    this.cartService.getCart().subscribe(items => {
       this.cartItems = items || [];
-      this.total = this.cartService.getCartTotal();
-      if (this.cartItems.length === 0 && items !== null) {
+      this.total = this.calculateTotal(this.cartItems);
+      console.log('Cart items loaded in checkout:', this.cartItems);
+      if (this.cartItems.length === 0) {
         this.router.navigate(['/cart']);
       }
+      this.cdr.detectChanges();
     });
+  }
+
+  private calculateTotal(items: any[]): number {
+    return items.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0);
+  }
+
+  goBack() {
+    this.router.navigate(['/cart']);
   }
 
   loadAddresses() {
     this.addressService.getAddresses().subscribe(res => {
       // Handle both direct array and wrapped { value: [] } responses
       this.addresses = Array.isArray(res) ? res : ((res as any).value || []);
+      console.log('Addresses loaded:', this.addresses);
       
-      const defaultAddr = this.addresses.find(a => a.IsDefault || a.isDefault);
-      if (defaultAddr) {
-        this.selectedAddressId = defaultAddr.Id || defaultAddr.id;
-      } else if (this.addresses.length > 0) {
-        this.selectedAddressId = this.addresses[0].Id || this.addresses[0].id;
+      if (this.addresses.length > 0) {
+        const defaultAddr = this.addresses.find(a => a.IsDefault || a.isDefault);
+        if (defaultAddr) {
+          this.selectedAddressId = defaultAddr.Id || defaultAddr.id;
+        } else {
+          this.selectedAddressId = this.addresses[0].Id || this.addresses[0].id;
+        }
       }
+      this.cdr.detectChanges();
     });
   }
 

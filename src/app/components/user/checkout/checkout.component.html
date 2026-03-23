@@ -1,6 +1,11 @@
 <div class="checkout-container">
   <div class="header-section">
-    <h1>Checkout</h1>
+    <div class="header-top">
+      <button class="back-btn" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <h1>Checkout</h1>
+    </div>
     <p class="subtitle">Complete your purchase safely</p>
   </div>
 
@@ -33,31 +38,27 @@
           <button pButton label="Add New Address" icon="pi pi-plus" class="p-button-text p-button-sm" (click)="showAddAddress = !showAddAddress"></button>
         </div>
 
-        <div class="new-address-form mt-3" *ngIf="showAddAddress">
+        <div class="new-address-form" *ngIf="showAddAddress">
           <div class="p-fluid">
             <div class="field mb-3">
               <label class="block text-sm font-bold mb-1">Street Address</label>
-              <input type="text" pInputText [(ngModel)]="newAddress.street" placeholder="e.g. 123 Bike Lane">
+              <input type="text" pInputText [(ngModel)]="newAddress.street" placeholder="e.g. 123 Bike Lane" class="w-full">
             </div>
-            <div class="grid mb-3">
-              <div class="col-6">
-                <label class="block text-sm font-bold mb-1">City</label>
-                <input type="text" pInputText [(ngModel)]="newAddress.city" placeholder="City">
-              </div>
-              <div class="col-6">
-                <label class="block text-sm font-bold mb-1">State</label>
-                <input type="text" pInputText [(ngModel)]="newAddress.state" placeholder="State">
-              </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">City</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.city" placeholder="City" class="w-full">
             </div>
-            <div class="grid mb-3">
-              <div class="col-6">
-                <label class="block text-sm font-bold mb-1">Postal Code</label>
-                <input type="text" pInputText [(ngModel)]="newAddress.postalCode" placeholder="######">
-              </div>
-              <div class="col-6">
-                <label class="block text-sm font-bold mb-1">Country</label>
-                <input type="text" pInputText [(ngModel)]="newAddress.country">
-              </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">State</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.state" placeholder="State" class="w-full">
+            </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">Postal Code</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.postalCode" placeholder="######" class="w-full">
+            </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">Country</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.country" class="w-full">
             </div>
             <button pButton label="Save Address" icon="pi pi-check" (click)="addAddress()" class="p-button-primary w-full"></button>
           </div>
