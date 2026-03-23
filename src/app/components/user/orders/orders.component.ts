@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderService, Order } from '../../../services/order.service';
 import { TagModule } from 'primeng/tag';
@@ -29,10 +29,17 @@ export class UserOrdersComponent implements OnInit {
   activeStep: number = 0;
   selectedOrder: any = null;
 
-  constructor(private orderService: OrderService) {}
+  constructor(
+    private orderService: OrderService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    this.loadOrders();
+    // Fix: ExpressionChangedAfterItHasBeenCheckedError by using setTimeout
+    setTimeout(() => {
+      this.loadOrders();
+    });
+    
     this.trackingSteps = [
       { label: 'Pending' },
       { label: 'Out for Delivery' },
@@ -68,6 +75,7 @@ export class UserOrdersComponent implements OnInit {
           this.orders = [];
         } finally {
           this.loading = false;
+          this.cdr.detectChanges();
           console.log('Loading state set to false');
         }
       },
@@ -75,12 +83,16 @@ export class UserOrdersComponent implements OnInit {
         console.error('API Error loading orders:', err);
         this.loading = false;
         this.orders = [];
+        this.cdr.detectChanges();
       }
     });
   }
 
   onPageChange(event: any) {
-    this.loadOrders(event.page + 1);
+    this.currentPage = (event.page || 0) + 1;
+    this.pageSize = event.rows || 10;
+    this.loadOrders(this.currentPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   trackOrder(order: any) {

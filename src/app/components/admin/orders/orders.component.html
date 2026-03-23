@@ -24,15 +24,18 @@
         <td>
           <p-tag [value]="order.status || order.Status" [severity]="getSeverity(order.status || order.Status)"></p-tag>
         </td>
-        <td>
+        <td class="flex gap-2">
+          <button pButton icon="pi pi-eye" class="p-button-sm p-button-info p-button-rounded" 
+                  (click)="viewDetails(order)" pTooltip="View Details"></button>
+
           <button pButton label="Start Delivery" icon="pi pi-truck" class="p-button-sm p-button-warning" 
                   *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)"></button>
           
           <button pButton label="Verify OTP" icon="pi pi-key" class="p-button-sm p-button-success" 
                   *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)"></button>
           
-          <span *ngIf="(order.status || order.Status) === 'Delivered'" class="text-success">
-            <i class="pi pi-check-circle"></i> Completed
+          <span *ngIf="(order.status || order.Status) === 'Delivered'" class="text-success flex align-items-center">
+            <i class="pi pi-check-circle mr-1"></i> Completed
           </span>
         </td>
       </tr>
@@ -55,5 +58,65 @@
       <button pButton label="Resend OTP" icon="pi pi-refresh" class="p-button-text p-button-secondary" (click)="resendOtp()"></button>
       <button pButton label="Confirm" icon="pi pi-check" (click)="verifyOtp()" [disabled]="otpInput.length < 6"></button>
     </ng-template>
+  </p-dialog>
+
+  <!-- Order Details Dialog -->
+  <p-dialog header="Order Details" [(visible)]="displayDetailsDialog" [modal]="true" [style]="{width: '600px'}">
+    <div *ngIf="selectedOrder" class="p-3">
+      <div class="grid mb-4">
+        <div class="col-6">
+          <label class="block text-500 font-medium mb-1">Customer</label>
+          <div class="text-900 font-bold">{{ selectedOrder.user?.name || selectedOrder.User?.name || 'Guest' }}</div>
+          <div class="text-600">{{ selectedOrder.user?.email || selectedOrder.User?.email }}</div>
+        </div>
+        <div class="col-6 text-right">
+          <label class="block text-500 font-medium mb-1">Status</label>
+          <p-tag [value]="selectedOrder.status || selectedOrder.Status" [severity]="getSeverity(selectedOrder.status || selectedOrder.Status)"></p-tag>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-500 font-medium mb-2">Shipping Address</label>
+        <div class="p-3 border-round bg-gray-50 text-700" *ngIf="selectedOrder.address || selectedOrder.Address">
+          {{ (selectedOrder.address || selectedOrder.Address).street }}, 
+          {{ (selectedOrder.address || selectedOrder.Address).city }}, 
+          {{ (selectedOrder.address || selectedOrder.Address).state }}, 
+          {{ (selectedOrder.address || selectedOrder.Address).country }}
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-500 font-medium mb-2">Order Items</label>
+        <div class="border-round border-1 border-200 overflow-hidden">
+          <table class="w-full text-left" style="border-collapse: collapse;">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="p-2 border-bottom-1 border-200">Product</th>
+                <th class="p-2 border-bottom-1 border-200 text-right">Price</th>
+                <th class="p-2 border-bottom-1 border-200 text-center">Qty</th>
+                <th class="p-2 border-bottom-1 border-200 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of (selectedOrder.orderItems || selectedOrder.OrderItems || [])" class="border-bottom-1 border-200">
+                <td class="p-2 flex align-items-center gap-2">
+                  <img [src]="item.product?.imageUrl || 'assets/placeholder.png'" style="width: 32px; height: 32px; object-fit: cover;" class="border-round">
+                  <span>{{ item.product?.name || 'Product ' + item.productId }}</span>
+                </td>
+                <td class="p-2 text-right">${{ item.price }}</td>
+                <td class="p-2 text-center">{{ item.quantity }}</td>
+                <td class="p-2 text-right font-bold">${{ item.price * item.quantity }}</td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-gray-50">
+              <tr>
+                <td colspan="3" class="p-2 text-right font-bold">Grand Total</td>
+                <td class="p-2 text-right font-bold text-xl text-primary">${{ selectedOrder.totalAmount || selectedOrder.TotalAmount }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
   </p-dialog>
 </div>

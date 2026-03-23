@@ -67,4 +67,17 @@
     <i class="pi pi-box"></i>
     <p>No products found in this category</p>
   </div>
+
+  <!-- Pagination Section -->
+  <div class="pagination-section mt-4 mb-4" *ngIf="totalRecords > pageSize">
+    <p-paginator 
+      [rows]="pageSize" 
+      [totalRecords]="totalRecords" 
+      [first]="(currentPage - 1) * pageSize"
+      (onPageChange)="onPageChange($event)"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+      [rowsPerPageOptions]="[10, 20, 50]">
+    </p-paginator>
+  </div>
 </div>

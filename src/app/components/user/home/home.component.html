@@ -33,19 +33,6 @@
     </div>
   </div>
 
-  <!-- Featured Card (Only on Main Dashboard) -->
-  <div class="featured-card" *ngIf="!selectedCategory && !searchTerm && categories.length > 0">
-    <div class="featured-content">
-      <span class="exclusive-tag">Exclusive</span>
-      <h2>Moto Performance</h2>
-      <p>Upgrade your ride today</p>
-      <button class="shop-now">Shop Now</button>
-    </div>
-    <div class="featured-image">
-      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Moto" alt="Featured">
-    </div>
-  </div>
-
   <!-- Categories Grid (Default View) -->
   <div class="categories-grid" *ngIf="!selectedCategory && !searchTerm">
     <div 

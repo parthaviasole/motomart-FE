@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../../../services/order.service';
@@ -24,13 +24,21 @@ export class AdminOrdersComponent implements OnInit {
   pageNumber: number = 1;
   
   displayOtpDialog: boolean = false;
+  displayDetailsDialog: boolean = false;
   selectedOrderId: string = '';
+  selectedOrder: any = null;
   otpInput: string = '';
 
-  constructor(private orderService: OrderService) {}
+  constructor(
+    private orderService: OrderService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    this.loadOrders();
+    // Fix: ExpressionChangedAfterItHasBeenCheckedError by using setTimeout
+    setTimeout(() => {
+      this.loadOrders();
+    });
   }
 
   loadOrders() {
@@ -57,6 +65,7 @@ export class AdminOrdersComponent implements OnInit {
           this.orders = [];
         } finally {
           this.loading = false;
+          this.cdr.detectChanges();
           console.log('Admin: Loading set to false');
         }
       },
@@ -64,6 +73,7 @@ export class AdminOrdersComponent implements OnInit {
         console.error('Admin: API Error loading orders', err);
         this.loading = false;
         this.orders = [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -72,6 +82,11 @@ export class AdminOrdersComponent implements OnInit {
     this.pageNumber = (event.page || 0) + 1;
     this.pageSize = event.rows || 10;
     this.loadOrders();
+  }
+
+  viewDetails(order: any) {
+    this.selectedOrder = order;
+    this.displayDetailsDialog = true;
   }
 
   proceedToDelivery(orderId: string) {
