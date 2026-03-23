@@ -31,7 +31,6 @@ export class AdminUsersComponent implements OnInit {
   totalPages = 0;
   currentPage = 1;
   pageSize = 10;
-  searchTerm: string = '';
 
   constructor(
     private userService: UserService,
@@ -45,7 +44,7 @@ export class AdminUsersComponent implements OnInit {
     this.currentPage = Math.floor(event.first / event.rows) + 1;
     this.pageSize = event.rows;
 
-    this.userService.getUsers(this.currentPage, this.pageSize, this.searchTerm).subscribe({
+    this.userService.getUsers(this.currentPage, this.pageSize).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.users = res?.items || [];
@@ -57,13 +56,6 @@ export class AdminUsersComponent implements OnInit {
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
       }
-    });
-  }
-
-  onSearch() {
-    this.table.onLazyLoad.emit({
-      first: 0,
-      rows: this.pageSize
     });
   }
 

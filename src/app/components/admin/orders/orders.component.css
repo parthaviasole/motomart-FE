@@ -2,6 +2,32 @@
   padding: 2rem;
 }
 
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.toolbar input[pInputText] {
+  width: 18rem;
+  height: 44px; /* Matches p-select height */
+}
+
+/* Ensure p-select also has consistent height and alignment */
+:host ::ng-deep .p-select {
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+:host ::ng-deep .p-select-label {
+  padding-top: 0;
+  padding-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
 .actions-cell {
   width: 150px;
 }

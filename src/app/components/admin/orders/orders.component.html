@@ -1,5 +1,11 @@
+<p-toast></p-toast>
 <div class="admin-orders-container">
   <h1>Order Management</h1>
+
+  <div class="toolbar mb-4">
+    <input type="text" pInputText placeholder="Search by customer or product" [(ngModel)]="searchTerm" (input)="onSearchChange()">
+    <p-select [options]="statusOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusChange()" placeholder="Filter by Status" styleClass="w-full md:w-14rem"></p-select>
+</div>
 
   <p-table [value]="orders" [rowHover]="true" responsiveLayout="scroll">
     <ng-template pTemplate="header">

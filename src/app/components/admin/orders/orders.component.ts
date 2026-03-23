@@ -9,19 +9,31 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
 import { TooltipModule } from 'primeng/tooltip';
+import { SelectModule } from 'primeng/select';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, PaginatorModule, TooltipModule],
+  imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, PaginatorModule, TooltipModule, SelectModule, ToastModule],
   templateUrl: './orders.component.html',
-  styleUrl: './orders.component.css'
+  styleUrl: './orders.component.css',
+  providers: [MessageService]
 })
 export class AdminOrdersComponent implements OnInit {
   orders: any[] = [];
   totalCount: number = 0;
   pageSize: number = 10;
   pageNumber: number = 1;
+  searchTerm: string = '';
+  selectedStatus: string = '';
+  statusOptions = [
+    { label: 'All Statuses', value: '' },
+    { label: 'Pending', value: 'Pending' },
+    { label: 'Out for Delivery', value: 'Out for Delivery' },
+    { label: 'Delivered', value: 'Delivered' }
+  ];
   
   displayOtpDialog: boolean = false;
   displayDetailsDialog: boolean = false;
@@ -31,41 +43,22 @@ export class AdminOrdersComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
-    // Fix: ExpressionChangedAfterItHasBeenCheckedError by using setTimeout
     setTimeout(() => {
       this.loadOrders();
     });
   }
 
   loadOrders() {
-    console.log('Admin: Fetching all orders for page:', this.pageNumber);
-    this.orderService.getAllOrders(this.pageNumber, this.pageSize).subscribe({
+    this.orderService.getAllOrders(this.pageNumber, this.pageSize, this.searchTerm, undefined, this.selectedStatus).subscribe({
       next: (result: any) => {
-        try {
-          console.log('Admin: API response received:', result);
-          if (Array.isArray(result)) {
-            this.orders = result;
-            this.totalCount = result.length;
-          } else if (result && (result.items || result.Items)) {
-            this.orders = result.items || result.Items || [];
-            this.totalCount = result.totalCount || result.TotalCount || 0;
-          } else {
-            console.warn('Admin: Unexpected API response structure:', result);
-            this.orders = [];
-            this.totalCount = 0;
-          }
-          console.log('Admin: Mapped orders:', this.orders);
-        } catch (err) {
-          console.error('Admin: Error processing response:', err);
-          this.orders = [];
-        } finally {
-          this.cdr.detectChanges();
-          console.log('Admin: Orders processed');
-        }
+        this.orders = result.items || result.Items || [];
+        this.totalCount = result.totalCount || result.TotalCount || 0;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Admin: API Error loading orders', err);
@@ -73,6 +66,16 @@ export class AdminOrdersComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onSearchChange() {
+    this.pageNumber = 1;
+    this.loadOrders();
+  }
+
+  onStatusChange() {
+    this.pageNumber = 1;
+    this.loadOrders();
   }
 
   onPageChange(event: any) {
@@ -88,7 +91,7 @@ export class AdminOrdersComponent implements OnInit {
 
   proceedToDelivery(orderId: string) {
     this.orderService.updateOrderStatus(orderId, 'Out for Delivery').subscribe(() => {
-      alert('Order status updated. OTP sent to user.');
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order status updated. OTP sent to user.' });
       this.loadOrders();
     });
   }
@@ -102,19 +105,19 @@ export class AdminOrdersComponent implements OnInit {
   verifyOtp() {
     this.orderService.verifyOtp(this.selectedOrderId, this.otpInput).subscribe({
       next: () => {
-        alert('OTP Verified! Order marked as Delivered.');
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'OTP Verified! Order marked as Delivered.' });
         this.displayOtpDialog = false;
         this.loadOrders();
       },
       error: (err) => {
-        alert('Invalid OTP. Please try again or resend OTP.');
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid OTP. Please try again or resend OTP.' });
       }
     });
   }
 
   resendOtp() {
     this.orderService.resendOtp(this.selectedOrderId).subscribe(() => {
-      alert('New OTP sent to user email.');
+      this.messageService.add({ severity: 'info', summary: 'Info', detail: 'New OTP sent to user email.' });
     });
   }
 
