@@ -39,6 +39,77 @@
   color: #999;
 }
 
+/* Unified Simplified Footer Styles */
+.table-footer-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+.total-count-display {
+  font-size: 1rem;
+  color: #666;
+}
+
+.total-count-display span {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+}
+
+.page-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.page-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #555;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: #2196F3;
+  color: #2196F3;
+  background: #f0f7ff;
+}
+
+.page-btn.active {
+  background: #2196F3;
+  border-color: #2196F3;
+  color: #fff;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f9f9f9;
+}
+
+@media screen and (max-width: 768px) {
+  .table-footer-custom {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+  }
+}
+
 /* Custom Table Styles */
 ::ng-deep .p-datatable-custom {
   border: none;

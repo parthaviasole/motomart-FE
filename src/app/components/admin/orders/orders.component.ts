@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../../../services/order.service';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -22,8 +22,11 @@ import { ToastModule } from 'primeng/toast';
   providers: [MessageService]
 })
 export class AdminOrdersComponent implements OnInit {
+  @ViewChild('dt') table!: Table;
+
   orders: any[] = [];
   totalCount: number = 0;
+  totalPages: number = 0;
   pageSize: number = 10;
   pageNumber: number = 1;
   searchTerm: string = '';
@@ -47,18 +50,22 @@ export class AdminOrdersComponent implements OnInit {
     private messageService: MessageService
   ) {}
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.loadOrders();
-    });
-  }
+  ngOnInit() {}
 
-  loadOrders() {
+  loadOrders(event?: any) {
+    if (event) {
+      this.pageNumber = Math.floor(event.first / event.rows) + 1;
+      this.pageSize = event.rows;
+    }
+
     this.orderService.getAllOrders(this.pageNumber, this.pageSize, this.searchTerm, undefined, this.selectedStatus).subscribe({
       next: (result: any) => {
-        this.orders = result.items || result.Items || [];
-        this.totalCount = result.totalCount || result.TotalCount || 0;
-        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.orders = result.items || result.Items || [];
+          this.totalCount = result.totalCount || result.TotalCount || 0;
+          this.totalPages = result.totalPages || result.TotalPages || 0;
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
         console.error('Admin: API Error loading orders', err);
@@ -69,19 +76,41 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   onSearchChange() {
-    this.pageNumber = 1;
-    this.loadOrders();
+    this.table.onLazyLoad.emit({
+      first: 0,
+      rows: this.pageSize
+    });
   }
 
   onStatusChange() {
-    this.pageNumber = 1;
-    this.loadOrders();
+    this.table.onLazyLoad.emit({
+      first: 0,
+      rows: this.pageSize
+    });
   }
 
-  onPageChange(event: any) {
-    this.pageNumber = (event.page || 0) + 1;
-    this.pageSize = event.rows || 10;
-    this.loadOrders();
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.table.onLazyLoad.emit({
+      first: (page - 1) * this.pageSize,
+      rows: this.pageSize
+    });
+  }
+
+  changePageSize(newSize: number) {
+    this.pageSize = newSize;
+    this.table.onLazyLoad.emit({
+      first: 0,
+      rows: this.pageSize
+    });
+  }
+
+  getPagesArray(): number[] {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   viewDetails(order: any) {
@@ -92,7 +121,7 @@ export class AdminOrdersComponent implements OnInit {
   proceedToDelivery(orderId: string) {
     this.orderService.updateOrderStatus(orderId, 'Out for Delivery').subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order status updated. OTP sent to user.' });
-      this.loadOrders();
+      this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
     });
   }
 
@@ -107,7 +136,7 @@ export class AdminOrdersComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'OTP Verified! Order marked as Delivered.' });
         this.displayOtpDialog = false;
-        this.loadOrders();
+        this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid OTP. Please try again or resend OTP.' });

@@ -7,7 +7,7 @@
     <p-select [options]="statusOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusChange()" placeholder="Filter by Status" styleClass="w-full md:w-14rem"></p-select>
 </div>
 
-  <p-table [value]="orders" [rowHover]="true" responsiveLayout="scroll">
+  <p-table #dt [value]="orders" [lazy]="true" (onLazyLoad)="loadOrders($event)" [rows]="pageSize" [totalRecords]="totalCount" [rowHover]="true" responsiveLayout="scroll" styleClass="p-datatable-custom">
     <ng-template pTemplate="header">
       <tr>
         <th>ID</th>
@@ -15,7 +15,7 @@
         <th>Date</th>
         <th>Total</th>
         <th>Status</th>
-        <th>Actions</th>
+        <th style="width: 10rem">Actions</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-order>
@@ -42,8 +42,29 @@
     </ng-template>
   </p-table>
 
-  <div class="pagination-wrapper mt-4" *ngIf="totalCount > pageSize">
-    <p-paginator (onPageChange)="onPageChange($event)" [rows]="pageSize" [totalRecords]="totalCount"></p-paginator>
+  <!-- Simplified Pagination Footer -->
+  <div class="table-footer-custom mt-4" *ngIf="totalCount > 0">
+    <div class="total-count-display">
+      <span>{{ totalCount }}</span> Orders
+    </div>
+    
+    <div class="pagination-controls">
+      <div class="page-buttons">
+        <button class="page-btn prev" [disabled]="pageNumber === 1" (click)="goToPage(pageNumber - 1)">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        
+        <ng-container *ngFor="let p of getPagesArray()">
+          <button class="page-btn" [class.active]="p === pageNumber" (click)="goToPage(p)">
+            {{ p }}
+          </button>
+        </ng-container>
+
+        <button class="page-btn next" [disabled]="pageNumber === totalPages" (click)="goToPage(pageNumber + 1)">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- OTP Verification Dialog -->
@@ -65,13 +86,13 @@
   <!-- Order Details Dialog -->
   <p-dialog header="Order Details" [(visible)]="displayDetailsDialog" [modal]="true" [style]="{width: '600px'}">
     <div *ngIf="selectedOrder" class="p-3">
-      <div class="grid mb-4">
-        <div class="col-6">
+      <div class="flex flex-column md:flex-row justify-content-between mb-4 gap-3">
+        <div>
           <label class="block text-500 font-medium mb-1">Customer</label>
           <div class="text-900 font-bold">{{ selectedOrder.user?.name || selectedOrder.User?.name || 'Guest' }}</div>
           <div class="text-600">{{ selectedOrder.user?.email || selectedOrder.User?.email }}</div>
         </div>
-        <div class="col-6 text-right">
+        <div class="md:text-right">
           <label class="block text-500 font-medium mb-1">Status</label>
           <p-tag [value]="selectedOrder.status || selectedOrder.Status" [severity]="getSeverity(selectedOrder.status || selectedOrder.Status)"></p-tag>
         </div>
