@@ -18,7 +18,6 @@ import { MenuItem } from 'primeng/api';
 })
 export class UserOrdersComponent implements OnInit {
   orders: any[] = [];
-  loading: boolean = true;
   totalCount: number = 0;
   pageSize: number = 10;
   currentPage: number = 1;
@@ -49,7 +48,6 @@ export class UserOrdersComponent implements OnInit {
 
   loadOrders(page: number = 1) {
     console.log('Fetching orders for page:', page);
-    this.loading = true;
     this.currentPage = page;
     
     this.orderService.getUserOrders(this.currentPage, this.pageSize).subscribe({
@@ -74,14 +72,12 @@ export class UserOrdersComponent implements OnInit {
           console.error('Error processing orders response:', err);
           this.orders = [];
         } finally {
-          this.loading = false;
           this.cdr.detectChanges();
-          console.log('Loading state set to false');
+          console.log('Orders processed');
         }
       },
       error: (err) => {
         console.error('API Error loading orders:', err);
-        this.loading = false;
         this.orders = [];
         this.cdr.detectChanges();
       }

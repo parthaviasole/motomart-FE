@@ -22,6 +22,16 @@
   margin-top: 0.5rem;
 }
 
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
 .cart-content {
   display: flex;
   gap: 2rem;

@@ -19,9 +19,12 @@ export class UserCartComponent implements OnInit {
 
   ngOnInit() {
     this.cartService.cartItems$.subscribe(items => {
+      if (items === null) return;
       this.cartItems = items;
       this.total = this.cartService.getCartTotal();
     });
+
+    this.cartService.loadCart();
   }
 
   updateQuantity(productId: number, quantity: number) {

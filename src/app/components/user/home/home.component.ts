@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { RouterModule } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { finalize, Subject, debounceTime, distinctUntilChanged, switchMap, takeUntil, of } from 'rxjs';
 
 @Component({
@@ -17,11 +18,10 @@ import { finalize, Subject, debounceTime, distinctUntilChanged, switchMap, takeU
   styleUrl: './home.component.css'
 })
 export class UserHomeComponent implements OnInit, OnDestroy {
-  categories: any[] = [];
+  categories: string[] = [];
   products: Product[] = [];
   selectedCategory: string | null = null;
   searchTerm: string = '';
-  loading: boolean = true;
   cartCount: number = 0;
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
@@ -30,7 +30,8 @@ export class UserHomeComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private cartService: CartService,
     private cdr: ChangeDetectorRef,
-    private zone: NgZone
+    private zone: NgZone,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
@@ -50,10 +51,21 @@ export class UserHomeComponent implements OnInit, OnDestroy {
   addToCart(productId: number) {
     this.cartService.addToCart(productId, 1).subscribe({
       next: () => {
-        alert('Added to cart!');
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Success', 
+          detail: 'Added to Cart',
+          life: 2000 
+        });
       },
       error: (err) => {
         console.error('Error adding to cart', err);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'Failed to add to cart',
+          life: 3000 
+        });
       }
     });
   }
@@ -75,47 +87,32 @@ export class UserHomeComponent implements OnInit, OnDestroy {
             hasNext: false 
           } as PagedResult<Product>);
         }
-        this.loading = true;
         this.cdr.detectChanges();
         return this.productService.getProducts(1, 20, term, this.selectedCategory || undefined).pipe(
           finalize(() => {
             this.zone.run(() => {
-              this.loading = false;
               this.cdr.detectChanges();
             });
           })
         );
       })
-    ).subscribe({
+    ).subscribe({ 
       next: (res: PagedResult<Product>) => {
         this.products = res.items;
         this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.error('Error in search stream', err);
-        this.loading = false;
         this.cdr.detectChanges();
       }
     });
   }
 
   loadData() {
-    this.loading = true;
-    this.productService.getProductTypesSummary().pipe(
-      finalize(() => {
-        this.zone.run(() => {
-          this.loading = false;
-          this.cdr.detectChanges();
-        });
-      })
-    ).subscribe({
-      next: (res: any) => {
-        const data = Array.isArray(res) ? res : (res.value || []);
-        this.categories = data;
+    this.productService.getProductTypes().subscribe({
+      next: (res) => {
+        this.categories = res;
         this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-        console.error('Error loading categories', err);
       }
     });
   }
@@ -127,13 +124,11 @@ export class UserHomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.loading = true;
     console.log('Fetching products for category:', this.selectedCategory);
     
     this.productService.getProducts(1, 20, this.searchTerm, this.selectedCategory || undefined).pipe(
       finalize(() => {
         this.zone.run(() => {
-          this.loading = false;
           console.log('Loading products finished. Products count:', this.products.length);
           this.cdr.detectChanges();
         });
@@ -152,7 +147,13 @@ export class UserHomeComponent implements OnInit, OnDestroy {
 
   selectCategory(type: string) {
     this.selectedCategory = type;
-    this.loadProducts();
+    this.cdr.detectChanges();
+    this.productService.getProducts(1, 20, this.searchTerm, type).subscribe({
+      next: (res) => {
+        this.products = res.items;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   clearCategory() {

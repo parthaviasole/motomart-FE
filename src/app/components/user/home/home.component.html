@@ -38,9 +38,9 @@
     <div 
       *ngFor="let cat of categories" 
       class="category-card" 
-      (click)="selectCategory(cat.type)"
+      (click)="selectCategory(cat)"
     >
-      <span class="category-name">{{ cat.type }}</span>
+      <span class="category-name">{{ cat }}</span>
     </div>
   </div>
 
@@ -62,13 +62,8 @@
     </div>
   </div>
 
-  <!-- Loader -->
-  <div class="loader-container" *ngIf="loading">
-    <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #2ecc71"></i>
-  </div>
-
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="products.length === 0 && !loading && (selectedCategory || searchTerm)">
+  <div class="empty-state" *ngIf="products.length === 0 && (selectedCategory || searchTerm)">
     <i class="pi pi-box"></i>
     <p>No products found</p>
     <button pButton label="Back to Categories" (click)="clearCategory()" class="p-button-text"></button>

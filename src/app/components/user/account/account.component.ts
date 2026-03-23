@@ -29,7 +29,6 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 export class UserAccountComponent implements OnInit {
   user: User | null = null;
   isEditMode = false;
-  loading = false;
   editData = {
     name: '',
     email: '',
@@ -79,12 +78,10 @@ export class UserAccountComponent implements OnInit {
   onUpdate() {
     if (!this.user) return;
 
-    this.loading = true;
     this.userService.updateUser(this.user.id, this.editData).subscribe({
       next: (updatedUser) => {
         this.user = updatedUser;
         this.isEditMode = false;
-        this.loading = false;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' });
         
         // Update localStorage
@@ -92,7 +89,6 @@ export class UserAccountComponent implements OnInit {
         localStorage.setItem('user', JSON.stringify({ ...storedUser, name: updatedUser.name, email: updatedUser.email }));
       },
       error: (err) => {
-        this.loading = false;
         let errorMessage = 'Update failed';
         if (err.error && typeof err.error === 'string') {
           errorMessage = err.error;

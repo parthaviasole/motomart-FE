@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { RouterModule } from '@angular/router';
 import { PaginatorModule } from 'primeng/paginator';
+import { MessageService } from 'primeng/api';
 import { finalize, Subject, debounceTime, distinctUntilChanged, switchMap, takeUntil, of } from 'rxjs';
 
 @Component({
@@ -22,7 +23,6 @@ export class UserProductsComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   selectedCategory: string = 'All';
   searchTerm: string = '';
-  loading: boolean = true;
   cartCount: number = 0;
   pageSize: number = 20;
   currentPage: number = 1;
@@ -34,7 +34,8 @@ export class UserProductsComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private cartService: CartService,
     private cdr: ChangeDetectorRef,
-    private zone: NgZone
+    private zone: NgZone,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
@@ -55,10 +56,21 @@ export class UserProductsComponent implements OnInit, OnDestroy {
   addToCart(productId: number) {
     this.cartService.addToCart(productId, 1).subscribe({
       next: () => {
-        alert('Added to cart!');
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Success', 
+          detail: 'Added to Cart',
+          life: 2000 
+        });
       },
       error: (err) => {
         console.error('Error adding to cart', err);
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: 'Failed to add to cart',
+          life: 3000 
+        });
       }
     });
   }
@@ -69,14 +81,12 @@ export class UserProductsComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
       takeUntil(this.destroy$),
       switchMap(term => {
-        this.loading = true;
         this.currentPage = 1; // Reset to first page on search
         this.cdr.detectChanges();
         const type = this.selectedCategory === 'All' ? undefined : this.selectedCategory;
         return this.productService.getProducts(this.currentPage, this.pageSize, term, type).pipe(
           finalize(() => {
             this.zone.run(() => {
-              this.loading = false;
               this.cdr.detectChanges();
             });
           })
@@ -90,7 +100,6 @@ export class UserProductsComponent implements OnInit, OnDestroy {
       },
       error: (err: any) => {
         console.error('Error in search stream', err);
-        this.loading = false;
         this.cdr.detectChanges();
       }
     });
@@ -98,8 +107,8 @@ export class UserProductsComponent implements OnInit, OnDestroy {
 
   loadCategories() {
     this.productService.getProductTypes().subscribe({
-      next: (types) => {
-        this.categories = ['All', ...types];
+      next: (res) => {
+        this.categories = res;
         this.cdr.detectChanges();
       },
       error: (err) => console.error('Error loading categories', err)
@@ -107,17 +116,15 @@ export class UserProductsComponent implements OnInit, OnDestroy {
   }
 
   loadProducts() {
-    this.loading = true;
     const type = this.selectedCategory === 'All' ? undefined : this.selectedCategory;
     
     this.productService.getProducts(this.currentPage, this.pageSize, this.searchTerm, type).pipe(
       finalize(() => {
         this.zone.run(() => {
-          this.loading = false;
           this.cdr.detectChanges();
         });
       })
-    ).subscribe({
+    ).subscribe({ 
       next: (res: PagedResult<Product>) => {
         this.products = res.items;
         this.totalRecords = res.totalCount;

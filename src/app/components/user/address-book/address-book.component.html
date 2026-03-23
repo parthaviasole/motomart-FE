@@ -7,7 +7,7 @@
     <button class="add-btn" (click)="showAddDialog()"><i class="pi pi-plus"></i></button>
   </div>
 
-  <div class="address-list" *ngIf="!loading">
+  <div class="address-list">
     <div class="address-card" *ngFor="let addr of addresses" [class.default]="addr.IsDefault || addr.isDefault">
       <div class="address-header">
         <div class="default-badge" *ngIf="addr.IsDefault || addr.isDefault">Default</div>
@@ -29,11 +29,6 @@
       <p>No addresses found. Add one now!</p>
       <button pButton label="Add New Address" icon="pi pi-plus" (click)="showAddDialog()"></button>
     </div>
-  </div>
-
-  <div class="loading-state" *ngIf="loading">
-    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-    <p>Loading addresses...</p>
   </div>
 
   <p-dialog header="{{ isEditMode ? 'Edit Address' : 'Add New Address' }}" [(visible)]="displayDialog" [modal]="true" [style]="{ width: '90vw', maxWidth: '450px' }">
@@ -68,7 +63,7 @@
         <label for="isDefault" class="ml-2 cursor-pointer">Set as Default Address</label>
       </div>
 
-      <p-button label="{{ isEditMode ? 'Update Address' : 'Save Address' }}" [loading]="loading" (click)="saveAddress()" styleClass="w-full p-3 font-bold"></p-button>
+      <p-button label="{{ isEditMode ? 'Update Address' : 'Save Address' }}" (click)="saveAddress()" styleClass="w-full p-3 font-bold"></p-button>
     </div>
   </p-dialog>
 </div>

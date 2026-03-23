@@ -43,9 +43,9 @@ export class UserCheckoutComponent implements OnInit {
   ngOnInit() {
     this.loadAddresses();
     this.cartService.cartItems$.subscribe(items => {
-      this.cartItems = items;
+      this.cartItems = items || [];
       this.total = this.cartService.getCartTotal();
-      if (this.cartItems.length === 0) {
+      if (this.cartItems.length === 0 && items !== null) {
         this.router.navigate(['/cart']);
       }
     });

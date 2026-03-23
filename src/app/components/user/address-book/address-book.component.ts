@@ -37,7 +37,6 @@ export class AddressBookComponent implements OnInit {
   addresses: Address[] = [];
   displayDialog = false;
   isEditMode = false;
-  loading = false;
   currentAddressId: string | null = null;
 
   addressData: AddressCreateDto = {
@@ -61,15 +60,8 @@ export class AddressBookComponent implements OnInit {
   }
 
   loadAddresses() {
-    this.loading = true;
     console.log('Loading addresses started...');
-    this.addressService.getAddresses().pipe(
-      finalize(() => {
-        this.loading = false;
-        console.log('Loading addresses finalized. Loading state:', this.loading);
-        this.cdr.detectChanges();
-      })
-    ).subscribe({
+    this.addressService.getAddresses().subscribe({
       next: (res: any) => {
         console.log('Data received in component:', res);
         this.addresses = Array.isArray(res) ? res : (res.value || []);
@@ -148,17 +140,14 @@ export class AddressBookComponent implements OnInit {
   }
 
   saveAddress() {
-    this.loading = true;
     if (this.isEditMode && this.currentAddressId) {
       this.addressService.updateAddress(this.currentAddressId, this.addressData).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Address updated' });
           this.displayDialog = false;
-          this.loading = false;
           this.loadAddresses();
         },
         error: () => {
-          this.loading = false;
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update address' });
         }
       });
@@ -167,11 +156,9 @@ export class AddressBookComponent implements OnInit {
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Address added' });
           this.displayDialog = false;
-          this.loading = false;
           this.loadAddresses();
         },
         error: () => {
-          this.loading = false;
           this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add address' });
         }
       });

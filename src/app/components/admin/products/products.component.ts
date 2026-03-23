@@ -39,7 +39,6 @@ export class AdminProductsComponent implements OnInit {
   totalPages = 0;
   currentPage = 1;
   pageSize = 10;
-  loading = true;
 
   // Add Product Dialog
   displayAddDialog = false;
@@ -102,19 +101,21 @@ export class AdminProductsComponent implements OnInit {
   }
 
   loadProducts(event: any) {
-    this.loading = true;
     this.currentPage = Math.floor(event.first / event.rows) + 1;
     this.pageSize = event.rows;
 
-    this.productService.getProducts(this.currentPage, this.pageSize).subscribe(res => {
-      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-      setTimeout(() => {
-        this.products = res?.items || [];
-        this.totalRecords = res?.totalCount || 0;
-        this.totalPages = res?.totalPages || 0;
-        this.loading = false;
-        this.cdr.detectChanges();
-      });
+    this.productService.getProducts(this.currentPage, this.pageSize).subscribe({
+      next: (res) => {
+        setTimeout(() => {
+          this.products = res?.items || [];
+          this.totalRecords = res?.totalCount || 0;
+          this.totalPages = res?.totalPages || 0;
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load products' });
+      }
     });
   }
 

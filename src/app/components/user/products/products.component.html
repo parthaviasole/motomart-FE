@@ -40,7 +40,7 @@
   </div>
 
   <!-- Products Grid -->
-  <div class="product-grid" *ngIf="!loading">
+  <div class="product-grid" *ngIf="products.length > 0">
     <div class="product-card" *ngFor="let product of products">
       <div class="product-image">
         <img [src]="product.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product.name" alt="{{ product.name }}">
@@ -57,13 +57,10 @@
     </div>
   </div>
 
-  <!-- Loader -->
-  <div class="loader-container" *ngIf="loading">
-    <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #2ecc71"></i>
-  </div>
+
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="products.length === 0 && !loading">
+  <div class="empty-state" *ngIf="products.length === 0">
     <i class="pi pi-box"></i>
     <p>No products found in this category</p>
   </div>

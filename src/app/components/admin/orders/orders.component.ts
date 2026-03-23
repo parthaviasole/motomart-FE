@@ -18,7 +18,6 @@ import { PaginatorModule } from 'primeng/paginator';
 })
 export class AdminOrdersComponent implements OnInit {
   orders: any[] = [];
-  loading: boolean = false;
   totalCount: number = 0;
   pageSize: number = 10;
   pageNumber: number = 1;
@@ -43,7 +42,6 @@ export class AdminOrdersComponent implements OnInit {
 
   loadOrders() {
     console.log('Admin: Fetching all orders for page:', this.pageNumber);
-    this.loading = true;
     this.orderService.getAllOrders(this.pageNumber, this.pageSize).subscribe({
       next: (result: any) => {
         try {
@@ -64,14 +62,12 @@ export class AdminOrdersComponent implements OnInit {
           console.error('Admin: Error processing response:', err);
           this.orders = [];
         } finally {
-          this.loading = false;
           this.cdr.detectChanges();
-          console.log('Admin: Loading set to false');
+          console.log('Admin: Orders processed');
         }
       },
       error: (err) => {
         console.error('Admin: API Error loading orders', err);
-        this.loading = false;
         this.orders = [];
         this.cdr.detectChanges();
       }

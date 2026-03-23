@@ -16,7 +16,7 @@ export interface CartItem {
 })
 export class CartService {
   private apiUrl = 'http://localhost:5237/api/cart';
-  private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
+  private cartItemsSubject = new BehaviorSubject<CartItem[] | null>(null);
   cartItems$ = this.cartItemsSubject.asObservable();
 
   constructor(private http: HttpClient) {
@@ -24,8 +24,21 @@ export class CartService {
   }
 
   loadCart() {
-    this.http.get<CartItem[]>(this.apiUrl).subscribe(items => {
-      this.cartItemsSubject.next(items);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.cartItemsSubject.next([]);
+      return;
+    }
+
+    this.http.get<CartItem[]>(this.apiUrl).subscribe({
+      next: (items) => {
+        console.log('Cart loaded successfully:', items);
+        this.cartItemsSubject.next(items);
+      },
+      error: (err) => {
+        console.error('Error loading cart:', err);
+        this.cartItemsSubject.next([]);
+      }
     });
   }
 
@@ -54,10 +67,12 @@ export class CartService {
   }
 
   getCartCount(): number {
-    return this.cartItemsSubject.value.reduce((acc, item) => acc + item.quantity, 0);
+    const items = this.cartItemsSubject.value;
+    return items ? items.reduce((acc, item) => acc + item.quantity, 0) : 0;
   }
 
   getCartTotal(): number {
-    return this.cartItemsSubject.value.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0);
+    const items = this.cartItemsSubject.value;
+    return items ? items.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0) : 0;
   }
 }

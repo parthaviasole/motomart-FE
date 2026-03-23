@@ -31,7 +31,6 @@ export class AdminUsersComponent implements OnInit {
   totalPages = 0;
   currentPage = 1;
   pageSize = 10;
-  loading = true;
   searchTerm: string = '';
 
   constructor(
@@ -43,7 +42,6 @@ export class AdminUsersComponent implements OnInit {
   ngOnInit() {}
 
   loadUsers(event: any) {
-    this.loading = true;
     this.currentPage = Math.floor(event.first / event.rows) + 1;
     this.pageSize = event.rows;
 
@@ -53,13 +51,11 @@ export class AdminUsersComponent implements OnInit {
           this.users = res?.items || [];
           this.totalRecords = res?.totalCount || 0;
           this.totalPages = res?.totalPages || 0;
-          this.loading = false;
           this.cdr.detectChanges();
         });
       },
       error: () => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
-        this.loading = false;
       }
     });
   }
