@@ -1,7 +1,13 @@
 <div class="products-container">
+  <p-toast></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
   <div class="content-card">
     <div class="card-header">
       <h2>Products</h2>
+      <div class="header-actions">
+        <button pButton label="Add Product" icon="pi pi-plus" class="p-button-primary p-button-sm" (click)="showAddProductDialog()"></button>
+        <button pButton label="Bulk Upload" icon="pi pi-upload" class="p-button-secondary p-button-sm ml-2" (click)="showBulkUploadDialog()"></button>
+      </div>
     </div>
 
     <p-table
@@ -22,6 +28,7 @@
           <th>Price</th>
           <th>Size</th>
           <th>Date</th>
+          <th style="width: 8rem">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-product>
@@ -36,12 +43,16 @@
           <td class="price-cell">{{ product.price | currency }}</td>
           <td>{{ product.quantity }} ml</td>
           <td>{{ product.createdAt | date:'yyyy-M-d' }}</td>
+          <td class="actions-cell">
+            <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-primary" (click)="editProduct(product)" pTooltip="Edit Product"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger" (click)="confirmDelete(product)" pTooltip="Delete Product"></button>
+          </td>
         </tr>
       </ng-template>
     </p-table>
 
-    <!-- Add Product Dialog -->
-    <p-dialog header="Add New Product" [(visible)]="displayAddDialog" [modal]="true" [style]="{width: '500px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
+    <!-- Add/Edit Product Dialog -->
+    <p-dialog [header]="isEditMode ? 'Edit Product' : 'Add New Product'" [(visible)]="displayAddDialog" [modal]="true" [style]="{width: '500px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
       <ng-template pTemplate="content">
         <div class="form-grid">
           <div class="field mb-5 mt-2">
@@ -82,7 +93,7 @@
 
           <div class="field mb-2">
             <div class="upload-controller" [class.has-file]="selectedFile">
-              <div class="upload-label">Product Image</div>
+              <div class="upload-label">{{ isEditMode ? 'Update Image (Optional)' : 'Product Image' }}</div>
               <div class="upload-input-wrapper">
                 <p-fileUpload mode="basic" name="demo[]" accept="image/*" maxFileSize="1000000" 
                   (onSelect)="onFileSelect($event)" 
@@ -102,7 +113,39 @@
       <ng-template pTemplate="footer">
         <div class="dialog-footer">
           <button pButton label="Cancel" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayAddDialog = false"></button>
-          <button pButton label="Create Product" icon="pi pi-check" class="p-button-primary" [loading]="uploading" (click)="saveProduct()"></button>
+          <button pButton [label]="isEditMode ? 'Update Product' : 'Create Product'" icon="pi pi-check" class="p-button-primary" [loading]="uploading" (click)="saveProduct()"></button>
+        </div>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Bulk Upload Dialog -->
+    <p-dialog header="Bulk Upload Products" [(visible)]="displayBulkDialog" [modal]="true" [style]="{width: '400px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
+      <ng-template pTemplate="content">
+        <div class="bulk-upload-content">
+          <p class="mb-4">Select a CSV, XLS, or XLSX file to import multiple products at once.</p>
+          <div class="field mb-2">
+            <div class="upload-controller" [class.has-file]="selectedBulkFile">
+              <div class="upload-label">Excel / CSV File</div>
+              <div class="upload-input-wrapper">
+                <p-fileUpload mode="basic" name="bulk[]" accept=".csv, .xls, .xlsx" maxFileSize="5000000" 
+                  (onSelect)="onBulkFileSelect($event)" 
+                  chooseLabel="Browse File" 
+                  styleClass="p-button-secondary p-button-outlined custom-upload-btn">
+                </p-fileUpload>
+                <div class="selected-file-name" *ngIf="selectedBulkFile">
+                  <i class="pi pi-file"></i>
+                  <span>{{selectedBulkFile.name}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <div class="dialog-footer">
+          <button pButton label="Cancel" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayBulkDialog = false"></button>
+          <button pButton label="Import" icon="pi pi-upload" class="p-button-primary" [loading]="bulkUploading" (click)="importProducts()"></button>
         </div>
       </ng-template>
     </p-dialog>

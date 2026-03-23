@@ -26,7 +26,83 @@
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Form Styles */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  width: 100%;
+}
+
+.field-group {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.field-group .field {
+  flex: 1;
+}
+
+::ng-deep .custom-dialog .p-floatlabel,
+::ng-deep .custom-dialog .p-floatlabel input,
+::ng-deep .custom-dialog .p-floatlabel textarea,
+::ng-deep .custom-dialog .p-floatlabel .p-inputtext {
+  width: 100% !important;
+}
+
+::ng-deep .custom-dialog .p-dialog-content {
+  padding: 2rem !important;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 0;
+}
+
+.dialog-footer .p-button-primary {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.upload-controller {
+  width: 100%;
+}
+
+.upload-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.custom-upload-btn {
+  width: 100%;
+}
+
+::ng-deep .custom-upload-btn .p-button {
+  width: 100% !important;
+}
+
+.bulk-upload-content p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 /* Custom Table Styles */
+::ng-deep .custom-dialog {
+  max-width: 95vw;
+}
+
 ::ng-deep .p-datatable-custom {
   border: none;
 }
@@ -81,6 +157,11 @@
 .price-cell {
   font-weight: 500;
   color: #666;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.25rem;
 }
 
 /* Status Badges */
@@ -231,6 +312,38 @@
   cursor: pointer;
 }
 
+/* Confirmation Dialog Styling */
+::ng-deep .p-confirm-dialog .p-dialog-header {
+  background: #fdfdfd;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-content {
+  padding: 2.5rem 2rem !important;
+}
+
+::ng-deep .p-confirm-dialog .p-confirm-dialog-icon {
+  color: #e57373;
+  font-size: 2rem;
+  margin-right: 1.5rem;
+}
+
+::ng-deep .p-confirm-dialog .p-confirm-dialog-message {
+  font-size: 1.1rem;
+  color: #444;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 1.5rem 2rem !important;
+}
+
+@media screen and (max-width: 768px) {
+  ::ng-deep .p-confirm-dialog {
+    width: 90vw !important;
+  }
+}
+
 /* Responsive Fixes */
 @media screen and (max-width: 1200px) {
   .content-card {
@@ -240,5 +353,44 @@
   .table-footer-custom {
     flex-direction: column;
     gap: 2rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .products-container {
+    padding: 1rem;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .header-actions button {
+    width: 100%;
+  }
+
+  .header-actions button.ml-2 {
+    margin-left: 0 !important;
+    margin-top: 0.5rem;
+  }
+
+  .field-group {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .dialog-footer {
+    flex-direction: column-reverse;
+  }
+
+  .dialog-footer button {
+    width: 100% !important;
   }
 }

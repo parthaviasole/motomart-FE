@@ -7,10 +7,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { TextareaModule } from 'primeng/textarea';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-admin-products',
@@ -25,9 +26,10 @@ import { TextareaModule } from 'primeng/textarea';
     FormsModule, 
     ToastModule, 
     FloatLabelModule, 
-    TextareaModule
+    TextareaModule,
+    ConfirmDialogModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
 })
@@ -42,6 +44,8 @@ export class AdminProductsComponent implements OnInit {
 
   // Add Product Dialog
   displayAddDialog = false;
+  isEditMode = false;
+  displayBulkDialog = false;
   newProduct: Partial<Product> = {
     name: '',
     type: '',
@@ -50,12 +54,15 @@ export class AdminProductsComponent implements OnInit {
     details: ''
   };
   selectedFile: File | null = null;
+  selectedBulkFile: File | null = null;
   uploading = false;
+  bulkUploading = false;
 
   constructor(
     private productService: ProductService,
     private cdr: ChangeDetectorRef,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit() {}
@@ -63,41 +70,128 @@ export class AdminProductsComponent implements OnInit {
   showAddProductDialog() {
     this.newProduct = { name: '', type: '', price: 0, quantity: 0, details: '' };
     this.selectedFile = null;
+    this.isEditMode = false;
     this.displayAddDialog = true;
+  }
+
+  editProduct(product: Product) {
+    this.newProduct = { ...product };
+    this.selectedFile = null;
+    this.isEditMode = true;
+    this.displayAddDialog = true;
+  }
+
+  confirmDelete(product: Product) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete <b>${product.name}</b>?`,
+      header: 'Confirm Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary',
+      accept: () => {
+        this.productService.deleteProduct(product.id).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product deleted successfully' });
+            this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize });
+          },
+          error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete product' })
+        });
+      }
+    });
+  }
+
+  showBulkUploadDialog() {
+    this.selectedBulkFile = null;
+    this.displayBulkDialog = true;
   }
 
   onFileSelect(event: any) {
     this.selectedFile = event.files[0];
   }
 
+  onBulkFileSelect(event: any) {
+    const file = event.files[0];
+    const allowedExtensions = ['csv', 'xls', 'xlsx'];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+
+    if (!extension || !allowedExtensions.includes(extension)) {
+      this.messageService.add({ 
+        severity: 'error', 
+        summary: 'Invalid File', 
+        detail: 'Only CSV, XLS, and XLSX files are allowed' 
+      });
+      return;
+    }
+    this.selectedBulkFile = file;
+  }
+
+  importProducts() {
+    if (!this.selectedBulkFile) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please select a file to upload' });
+      return;
+    }
+
+    this.bulkUploading = true;
+    this.productService.importProducts(this.selectedBulkFile).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Products imported successfully' });
+        this.displayBulkDialog = false;
+        this.bulkUploading = false;
+        this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize }); // Refresh grid
+      },
+      error: (err) => {
+        console.error('Import error:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to import products' });
+        this.bulkUploading = false;
+      }
+    });
+  }
+
   saveProduct() {
-    if (!this.newProduct.name || !this.selectedFile) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Please fill all required fields and select an image' });
+    if (!this.newProduct.name || !this.newProduct.type) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Name and Type are required' });
       return;
     }
 
     this.uploading = true;
-    this.productService.uploadImage(this.selectedFile).subscribe({
-      next: (res) => {
-        const productToCreate = { ...this.newProduct, imageUrl: res.url } as Product;
-        this.productService.createProduct(productToCreate).subscribe({
-          next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product created successfully' });
-            this.displayAddDialog = false;
-            this.uploading = false;
-            this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize }); // Refresh grid
-          },
-          error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create product' });
-            this.uploading = false;
-          }
-        });
+
+    const saveObs = this.isEditMode 
+      ? this.productService.updateProduct((this.newProduct as Product).id, this.newProduct as Product)
+      : this.productService.createProduct(this.newProduct as Product);
+
+    saveObs.subscribe({
+      next: (savedProduct) => {
+        if (this.selectedFile) {
+          this.productService.uploadProductImage(savedProduct.id, this.selectedFile).subscribe({
+            next: () => this.finalizeSave(),
+            error: () => {
+              this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Product saved but image upload failed' });
+              this.finalizeSave();
+            }
+          });
+        } else {
+          this.finalizeSave();
+        }
       },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload image' });
+      error: (err) => {
+        console.error('Error saving product:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save product' });
         this.uploading = false;
       }
     });
+  }
+
+  private finalizeSave() {
+    this.messageService.add({ 
+      severity: 'success', 
+      summary: 'Success', 
+      detail: this.isEditMode ? 'Product updated' : 'Product created' 
+    });
+    this.displayAddDialog = false;
+    this.uploading = false;
+    this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize });
   }
 
   loadProducts(event: any) {

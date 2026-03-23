@@ -96,4 +96,10 @@ export class ProductService {
   deleteProduct(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  importProducts(file: File): Observable<Product[]> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Product[]>(`${this.apiUrl}/import`, formData);
+  }
 }
