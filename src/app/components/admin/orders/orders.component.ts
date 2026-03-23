@@ -8,11 +8,12 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, PaginatorModule],
+  imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, PaginatorModule, TooltipModule],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css'
 })

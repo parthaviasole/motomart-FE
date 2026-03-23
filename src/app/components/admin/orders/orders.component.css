@@ -1,17 +1,21 @@
 .admin-orders-container {
-  padding: 20px;
+  padding: 2rem;
 }
 
-.text-success {
-  color: #2ecc71;
-  font-weight: bold;
+.actions-cell {
+  width: 150px;
 }
 
-.field {
-  margin-top: 15px;
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-.field label {
-  display: block;
-  margin-bottom: 5px;
+.id-cell {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

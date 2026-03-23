@@ -14,7 +14,7 @@
     </ng-template>
     <ng-template pTemplate="body" let-order>
       <tr>
-        <td>{{ (order.id || order.Id || '').substring(0, 8) }}...</td>
+        <td class="id-cell" [pTooltip]="order.id || order.Id || ''">{{ (order.id || order.Id || '').substring(0, 8) }}...</td>
         <td>
           <strong>{{ order.user?.name || order.User?.name || 'Guest' }}</strong><br>
           <small>{{ order.user?.email || order.User?.email }}</small>
@@ -24,19 +24,13 @@
         <td>
           <p-tag [value]="order.status || order.Status" [severity]="getSeverity(order.status || order.Status)"></p-tag>
         </td>
-        <td class="flex gap-2">
-          <button pButton icon="pi pi-eye" class="p-button-sm p-button-info p-button-rounded" 
-                  (click)="viewDetails(order)" pTooltip="View Details"></button>
-
-          <button pButton label="Start Delivery" icon="pi pi-truck" class="p-button-sm p-button-warning" 
-                  *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)"></button>
-          
-          <button pButton label="Verify OTP" icon="pi pi-key" class="p-button-sm p-button-success" 
-                  *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)"></button>
-          
-          <span *ngIf="(order.status || order.Status) === 'Delivered'" class="text-success flex align-items-center">
-            <i class="pi pi-check-circle mr-1"></i> Completed
-          </span>
+        <td class="actions-cell">
+          <div class="action-buttons">
+            <button pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-info p-button-sm" (click)="viewDetails(order)" pTooltip="View Details"></button>
+            <button pButton type="button" icon="pi pi-truck" class="p-button-rounded p-button-success p-button-sm" *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)" pTooltip="Start Delivery"></button>
+            <button pButton type="button" icon="pi pi-key" class="p-button-rounded p-button-warning p-button-sm" *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)" pTooltip="Verify OTP"></button>
+            <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-secondary p-button-sm" *ngIf="(order.status || order.Status) === 'Delivered'" [disabled]="true" pTooltip="Completed"></button>
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -51,12 +45,14 @@
     <div class="p-fluid">
       <div class="field">
         <label for="otp">Enter OTP sent to user</label>
-        <input type="text" pInputText id="otp" [(ngModel)]="otpInput" maxlength="6" placeholder="######">
+        <input type="text" pInputText id="otp" [(ngModel)]="otpInput" maxlength="6" placeholder="######" class="w-full">
       </div>
     </div>
     <ng-template pTemplate="footer">
-      <button pButton label="Resend OTP" icon="pi pi-refresh" class="p-button-text p-button-secondary" (click)="resendOtp()"></button>
-      <button pButton label="Confirm" icon="pi pi-check" (click)="verifyOtp()" [disabled]="otpInput.length < 6"></button>
+      <div class="flex gap-2 w-full">
+        <button pButton label="Resend OTP" icon="pi pi-refresh" class="p-button-text p-button-secondary flex-1" (click)="resendOtp()"></button>
+        <button pButton label="Confirm" icon="pi pi-check" class="p-button-success flex-1" (click)="verifyOtp()" [disabled]="otpInput.length < 6"></button>
+      </div>
     </ng-template>
   </p-dialog>
 

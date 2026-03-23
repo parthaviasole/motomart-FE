@@ -1,4 +1,38 @@
 <div class="dashboard-container">
-  <h2>Admin Dashboard</h2>
-  <p>Welcome to the admin section.</p>
+  <div class="header-section">
+    <h1>Admin Dashboard</h1>
+    <p class="subtitle">Overview of your store's performance.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card total-orders" (click)="navigateTo('orders')">
+      <div class="stat-icon">
+        <i class="pi pi-shopping-cart"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Total Orders</span>
+        <span class="stat-value">{{ stats.totalOrders }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card pending-orders" (click)="navigateTo('orders')">
+      <div class="stat-icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Pending Orders</span>
+        <span class="stat-value">{{ stats.pendingOrders }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card total-products" (click)="navigateTo('products')">
+      <div class="stat-icon">
+        <i class="pi pi-box"></i>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Total Products</span>
+        <span class="stat-value">{{ stats.totalProducts }}</span>
+      </div>
+    </div>
+  </div>
 </div>
