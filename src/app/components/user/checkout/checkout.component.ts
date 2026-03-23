@@ -8,11 +8,12 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputTextModule } from 'primeng/inputtext';
+import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-user-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, InputTextModule, LoaderComponent],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css'
 })
@@ -22,6 +23,7 @@ export class UserCheckoutComponent implements OnInit {
   paymentMethod: string = 'COD';
   cartItems: any[] = [];
   total: number = 0;
+  isLoading: boolean = false;
   
   newAddress = {
     street: '',
@@ -42,6 +44,7 @@ export class UserCheckoutComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.isLoading = true;
     this.loadAddresses();
     this.loadCartData();
   }
@@ -54,6 +57,7 @@ export class UserCheckoutComponent implements OnInit {
       if (this.cartItems.length === 0) {
         this.router.navigate(['/cart']);
       }
+      this.isLoading = false;
       this.cdr.detectChanges();
     });
   }
@@ -80,15 +84,18 @@ export class UserCheckoutComponent implements OnInit {
           this.selectedAddressId = this.addresses[0].Id || this.addresses[0].id;
         }
       }
+      this.isLoading = false;
       this.cdr.detectChanges();
     });
   }
 
   addAddress() {
+    this.isLoading = true;
     this.addressService.createAddress(this.newAddress).subscribe(() => {
       this.loadAddresses();
       this.showAddAddress = false;
       this.newAddress = { street: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false };
+      this.isLoading = false;
     });
   }
 
@@ -103,13 +110,17 @@ export class UserCheckoutComponent implements OnInit {
       quantity: item.quantity
     }));
 
+    this.isLoading = true;
     this.orderService.createOrder(this.selectedAddressId, this.paymentMethod, items).subscribe({
       next: (order) => {
         this.cartService.clearCart().subscribe(() => {
+          this.isLoading = false;
           this.router.navigate(['/orders']);
         });
       },
       error: (err) => {
+        this.isLoading = false;
+        console.error('Error placing order:', err);
         alert('Error placing order: ' + err.error);
       }
     });

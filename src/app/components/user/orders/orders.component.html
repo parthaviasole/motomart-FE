@@ -4,6 +4,16 @@
     <p class="subtitle">View and track your recent purchases</p>
   </div>
 
+  <div class="filters-section">
+    <div class="search-bar">
+      <input type="text" pInputText placeholder="Search" [(ngModel)]="searchTerm" (input)="onSearch()">
+    </div>
+    <div class="status-tabs">
+      <button [class.active]="activeStatus === 'Active'" (click)="filterByStatus('Active')">Active</button>
+      <button [class.active]="activeStatus === 'Completed'" (click)="filterByStatus('Completed')">Completed</button>
+    </div>
+  </div>
+
   <div class="orders-grid" *ngIf="orders.length > 0">
     <div class="order-card" *ngFor="let order of orders">
       <div class="order-header">

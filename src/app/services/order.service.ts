@@ -38,17 +38,27 @@ export class OrderService {
     return this.http.post<Order>(this.apiUrl, { addressId, paymentType, items });
   }
 
-  getUserOrders(pageNumber: number = 1, pageSize: number = 10): Observable<PagedResult<Order>> {
-    const params = new HttpParams()
+  getUserOrders(pageNumber: number = 1, pageSize: number = 10, searchTerm?: string, date?: string, status?: string): Observable<PagedResult<Order>> {
+    let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
+    
+    if (searchTerm) params = params.set('searchTerm', searchTerm);
+    if (date) params = params.set('date', date);
+    if (status) params = params.set('status', status);
+
     return this.http.get<PagedResult<Order>>(`${this.apiUrl}/user`, { params });
   }
 
-  getAllOrders(pageNumber: number = 1, pageSize: number = 10): Observable<PagedResult<Order>> {
-    const params = new HttpParams()
+  getAllOrders(pageNumber: number = 1, pageSize: number = 10, searchTerm?: string, date?: string, status?: string): Observable<PagedResult<Order>> {
+    let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
+
+    if (searchTerm) params = params.set('searchTerm', searchTerm);
+    if (date) params = params.set('date', date);
+    if (status) params = params.set('status', status);
+
     return this.http.get<PagedResult<Order>>(this.apiUrl, { params });
   }
 
