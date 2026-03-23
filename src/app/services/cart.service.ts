@@ -20,7 +20,15 @@ export class CartService {
   cartItems$ = this.cartItemsSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.loadCart();
+  }
+
+  getCart(): Observable<CartItem[]> {
+    return this.http.get<CartItem[]>(this.apiUrl).pipe(
+      tap((items) => {
+        console.log('Cart fetched directly:', items);
+        this.cartItemsSubject.next(Array.isArray(items) ? items : []);
+      })
+    );
   }
 
   loadCart() {
@@ -33,7 +41,8 @@ export class CartService {
     this.http.get<CartItem[]>(this.apiUrl).subscribe({
       next: (items) => {
         console.log('Cart loaded successfully:', items);
-        this.cartItemsSubject.next(items);
+        // Ensure items is an array
+        this.cartItemsSubject.next(Array.isArray(items) ? items : []);
       },
       error: (err) => {
         console.error('Error loading cart:', err);

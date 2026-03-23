@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CartService, CartItem } from '../../../services/cart.service';
 import { ButtonModule } from 'primeng/button';
@@ -15,28 +15,48 @@ export class UserCartComponent implements OnInit {
   cartItems: CartItem[] = [];
   total: number = 0;
 
-  constructor(private cartService: CartService, private router: Router) {}
+  constructor(
+    private cartService: CartService, 
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
-    this.cartService.cartItems$.subscribe(items => {
-      if (items === null) return;
-      this.cartItems = items;
-      this.total = this.cartService.getCartTotal();
-    });
+    this.fetchCart();
+  }
 
-    this.cartService.loadCart();
+  fetchCart() {
+    this.cartService.getCart().subscribe({
+      next: (items) => {
+        this.cartItems = items;
+        this.total = this.calculateTotal(items);
+        console.log('Cart fetched successfully in component:', items);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching cart in component:', err);
+      }
+    });
+  }
+
+  private calculateTotal(items: CartItem[]): number {
+    return items.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0);
   }
 
   updateQuantity(productId: number, quantity: number) {
     if (quantity <= 0) {
-      this.cartService.removeFromCart(productId).subscribe();
+      this.removeItem(productId);
     } else {
-      this.cartService.updateQuantity(productId, quantity).subscribe();
+      this.cartService.updateQuantity(productId, quantity).subscribe({
+        next: () => this.fetchCart()
+      });
     }
   }
 
   removeItem(productId: number) {
-    this.cartService.removeFromCart(productId).subscribe();
+    this.cartService.removeFromCart(productId).subscribe({
+      next: () => this.fetchCart()
+    });
   }
 
   proceedToCheckout() {
