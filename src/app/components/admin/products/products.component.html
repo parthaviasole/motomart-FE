@@ -40,7 +40,15 @@
           <td><p-tableCheckbox [value]="product"></p-tableCheckbox></td>
           <td>
             <div class="product-info">
-              <div class="avatar-placeholder-circle">{{ product.name.charAt(0) }}</div>
+              <div class="avatar-placeholder-circle">
+                <img *ngIf="product.imageUrl" [src]="product.imageUrl" class="table-product-avatar" />
+                <span *ngIf="!product.imageUrl">{{ product.name.charAt(0) }}</span>
+                
+                <!-- Hover Preview -->
+                <div class="avatar-hover-preview" *ngIf="product.imageUrl">
+                  <img [src]="product.imageUrl" alt="Product Preview" />
+                </div>
+              </div>
               <div class="product-details-mobile">
                 <span class="product-name">{{ product.name }}</span>
                 <span class="product-type-mobile visible-mobile">{{ product.type }}</span>
@@ -110,11 +118,17 @@
           <div class="field mb-2">
             <div class="upload-controller" [class.has-file]="selectedFile">
               <div class="upload-label">{{ isEditMode ? 'Update Image (Optional)' : 'Product Image' }}</div>
+              <div class="image-preview-container mb-3" *ngIf="imagePreview">
+                <img [src]="imagePreview" alt="Product Preview" class="product-preview-img" />
+                <button type="button" class="remove-image-btn" (click)="imagePreview = null; selectedFile = null;" pTooltip="Remove Image">
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
               <div class="upload-input-wrapper">
                 <p-fileUpload mode="basic" name="demo[]" accept="image/*" maxFileSize="1000000" 
                   (onSelect)="onFileSelect($event)" 
                   chooseLabel="Browse Image" 
-                  styleClass="p-button-secondary p-button-outlined custom-upload-btn">
+                  styleClass="p-button-primary custom-upload-btn">
                 </p-fileUpload>
                 <div class="selected-file-name" *ngIf="selectedFile">
                   <i class="pi pi-file"></i>
@@ -128,7 +142,7 @@
 
       <ng-template pTemplate="footer">
         <div class="dialog-footer">
-          <button pButton label="Cancel" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayAddDialog = false"></button>
+          <button pButton label="Cancel" icon="pi pi-times" class="cancel-btn" (click)="displayAddDialog = false"></button>
           <button pButton [label]="isEditMode ? 'Update Product' : 'Create Product'" icon="pi pi-check" class="p-button-primary" [loading]="uploading" (click)="saveProduct()"></button>
         </div>
       </ng-template>
@@ -146,7 +160,7 @@
                 <p-fileUpload mode="basic" name="bulk[]" accept=".csv, .xls, .xlsx" maxFileSize="5000000" 
                   (onSelect)="onBulkFileSelect($event)" 
                   chooseLabel="Browse File" 
-                  styleClass="p-button-secondary p-button-outlined custom-upload-btn">
+                  styleClass="p-button-primary custom-upload-btn">
                 </p-fileUpload>
                 <div class="selected-file-name" *ngIf="selectedBulkFile">
                   <i class="pi pi-file"></i>
@@ -160,7 +174,7 @@
 
       <ng-template pTemplate="footer">
         <div class="dialog-footer">
-          <button pButton label="Cancel" icon="pi pi-times" class="p-button-text p-button-secondary" (click)="displayBulkDialog = false"></button>
+          <button pButton label="Cancel" icon="pi pi-times" class="cancel-btn" (click)="displayBulkDialog = false"></button>
           <button pButton label="Import" icon="pi pi-upload" class="p-button-primary" [loading]="bulkUploading" (click)="importProducts()"></button>
         </div>
       </ng-template>

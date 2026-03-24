@@ -56,6 +56,7 @@ export class AdminProductsComponent implements OnInit {
   };
   selectedFile: File | null = null;
   selectedBulkFile: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
   uploading = false;
   bulkUploading = false;
 
@@ -112,6 +113,7 @@ export class AdminProductsComponent implements OnInit {
   showAddProductDialog() {
     this.newProduct = { name: '', type: '', price: 0, quantity: 0, details: '' };
     this.selectedFile = null;
+    this.imagePreview = null;
     this.isEditMode = false;
     this.displayAddDialog = true;
   }
@@ -119,6 +121,7 @@ export class AdminProductsComponent implements OnInit {
   editProduct(product: Product) {
     this.newProduct = { ...product };
     this.selectedFile = null;
+    this.imagePreview = product.imageUrl || null;
     this.isEditMode = true;
     this.displayAddDialog = true;
   }
@@ -151,6 +154,14 @@ export class AdminProductsComponent implements OnInit {
 
   onFileSelect(event: any) {
     this.selectedFile = event.files[0];
+    if (this.selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagePreview = e.target?.result || null;
+        this.cdr.markForCheck();
+      };
+      reader.readAsDataURL(this.selectedFile);
+    }
   }
 
   onBulkFileSelect(event: any) {

@@ -25,13 +25,16 @@ import { ToastModule } from 'primeng/toast';
 })
 export class AdminUsersComponent implements OnInit {
   @ViewChild('dt') table!: Table;
-  
+
+  totalCount: number = 0;
+  totalPages: number = 0;
+  pageSize: number = 10;
+  pageNumber: number = 1;
+
   users: User[] = [];
   totalRecords = 0;
-  totalPages = 0;
   pagesArray: number[] = [];
   currentPage = 1;
-  pageSize = 10;
 
   constructor(
     private userService: UserService,
@@ -42,15 +45,17 @@ export class AdminUsersComponent implements OnInit {
   ngOnInit() {}
 
   loadUsers(event: any) {
-    this.currentPage = Math.floor(event.first / event.rows) + 1;
-    this.pageSize = event.rows;
+      if (event) {
+      this.pageNumber = Math.floor(event.first / event.rows) + 1;
+      this.pageSize = event.rows;
+    }
 
     this.userService.getUsers(this.currentPage, this.pageSize).subscribe({
       next: (res) => {
         setTimeout(() => {
           this.users = res?.items || [];
-          this.totalRecords = res?.totalCount || 0;
-          this.totalPages = res?.totalPages || 0;
+          this.totalCount = res.totalCount || res.totalCount || 0;
+          this.totalPages = res.totalPages || res.totalPages || 0;
           this.updatePagesArray();
           this.cdr.markForCheck();
         });
