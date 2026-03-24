@@ -1,0 +1,69 @@
+<div class="address-book-container">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+  <div class="header">
+    <button class="back-btn" routerLink="/account"><i class="pi pi-chevron-left"></i></button>
+    <h1>Address Book</h1>
+    <button class="add-btn" (click)="showAddDialog()"><i class="pi pi-plus"></i></button>
+  </div>
+
+  <div class="address-list">
+    <div class="address-card" *ngFor="let addr of addresses" [class.default]="addr.IsDefault || addr.isDefault">
+      <div class="address-header">
+        <div class="default-badge" *ngIf="addr.IsDefault || addr.isDefault">Default</div>
+        <div class="actions">
+          <button (click)="editAddress(addr)"><i class="pi pi-pencil"></i></button>
+          <button class="delete" (click)="deleteAddress(addr.Id || addr.id)"><i class="pi pi-trash"></i></button>
+        </div>
+      </div>
+      <div class="address-content">
+        <p class="street">{{ addr.Street || addr.street }}</p>
+        <p class="location">{{ addr.City || addr.city }}, {{ addr.State || addr.state }} {{ addr.PostalCode || addr.postalCode }}</p>
+        <p class="country">{{ addr.Country || addr.country }}</p>
+      </div>
+      <button class="set-default-btn" *ngIf="!(addr.IsDefault || addr.isDefault)" (click)="setDefault(addr.Id || addr.id)">Set as Default</button>
+    </div>
+
+    <div class="empty-state" *ngIf="addresses.length === 0">
+      <i class="pi pi-map-marker"></i>
+      <p>No addresses found. Add one now!</p>
+      <button pButton label="Add New Address" icon="pi pi-plus" (click)="showAddDialog()"></button>
+    </div>
+  </div>
+
+  <p-dialog header="{{ isEditMode ? 'Edit Address' : 'Add New Address' }}" [(visible)]="displayDialog" [modal]="true" [style]="{ width: '90vw', maxWidth: '450px' }">
+    <div class="address-form p-fluid">
+      <p-floatlabel class="mb-5">
+        <input pInputText id="street" name="street" [(ngModel)]="addressData.street" required #street="ngModel" class="w-full" />
+        <label for="street">Street Address</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="mb-5">
+        <input pInputText id="city" name="city" [(ngModel)]="addressData.city" required #city="ngModel" class="w-full" />
+        <label for="city">City</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="mb-5">
+        <input pInputText id="state" name="state" [(ngModel)]="addressData.state" required #state="ngModel" class="w-full" />
+        <label for="state">State</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="mb-5">
+        <input pInputText id="postalCode" name="postalCode" [(ngModel)]="addressData.postalCode" required #postalCode="ngModel" class="w-full" />
+        <label for="postalCode">Postal Code</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="mb-5">
+        <input pInputText id="country" name="country" [(ngModel)]="addressData.country" required #country="ngModel" class="w-full" />
+        <label for="country">Country</label>
+      </p-floatlabel>
+
+      <div class="field-checkbox mb-5 flex align-items-center gap-2">
+        <p-checkbox name="isDefault" [binary]="true" [(ngModel)]="addressData.isDefault" inputId="isDefault"></p-checkbox>
+        <label for="isDefault" class="ml-2 cursor-pointer">Set as Default Address</label>
+      </div>
+
+      <p-button label="{{ isEditMode ? 'Update Address' : 'Save Address' }}" (click)="saveAddress()" styleClass="w-full p-3 font-bold"></p-button>
+    </div>
+  </p-dialog>
+</div>

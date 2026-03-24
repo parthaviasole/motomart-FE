@@ -1,0 +1,84 @@
+<div class="cart-container">
+  <div class="header-section">
+    <h1>Shopping Cart</h1>
+    <p class="subtitle">{{ cartItems.length }} items in your bag</p>
+  </div>
+
+  <div class="cart-content" *ngIf="cartItems.length > 0">
+    <div class="cart-items-list">
+      <div class="cart-item-card" *ngFor="let item of cartItems">
+        <div class="item-visual">
+          <img [src]="item.product?.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + item.product?.name" alt="{{ item.product?.name }}">
+        </div>
+        
+        <div class="item-info">
+          <div class="info-top">
+            <h3>{{ item.product?.name }}</h3>
+            <p class="unit-price">${{ item.product?.price }}</p>
+          </div>
+          
+          <div class="info-bottom">
+            <div class="quantity-picker">
+              <button (click)="updateQuantity(item.productId, item.quantity - 1)" class="picker-btn">
+                <i class="pi pi-minus"></i>
+              </button>
+              <span class="qty-value">{{ item.quantity }}</span>
+              <button (click)="updateQuantity(item.productId, item.quantity + 1)" 
+                      [disabled]="item.quantity >= (item.product?.quantity || 0)" 
+                      class="picker-btn">
+                <i class="pi pi-plus"></i>
+              </button>
+            </div>
+            
+            <button class="remove-btn" (click)="removeItem(item.productId)">
+              <i class="pi pi-trash"></i>
+              <span>Remove</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="item-total">
+          ${{ (item.product?.price || 0) * item.quantity }}
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-summary-panel">
+      <div class="summary-card">
+        <h3>Order Summary</h3>
+        
+        <div class="summary-line">
+          <span>Subtotal</span>
+          <span>${{ total }}</span>
+        </div>
+        <div class="summary-line">
+          <span>Shipping</span>
+          <span class="free">Free</span>
+        </div>
+        
+        <div class="summary-divider"></div>
+        
+        <div class="total-line">
+          <span>Total</span>
+          <span class="amount">${{ total }}</span>
+        </div>
+        
+        <button pButton label="Checkout Now" class="p-button-rounded p-button-lg w-full mt-4" (click)="proceedToCheckout()"></button>
+        
+        <div class="payment-badges">
+          <i class="pi pi-verified text-green-500"></i>
+          <span>Secure Checkout</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="cartItems.length === 0">
+    <div class="empty-illustration">
+      <i class="pi pi-shopping-bag"></i>
+    </div>
+    <h2>Your cart is empty</h2>
+    <p>Looks like you haven't added anything to your cart yet.</p>
+    <button pButton label="Browse Products" routerLink="/products" class="p-button-rounded p-button-outlined mt-4"></button>
+  </div>
+</div>

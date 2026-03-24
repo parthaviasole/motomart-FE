@@ -1,0 +1,129 @@
+<div class="orders-container">
+  <div class="header-section">
+    <h1>My Orders</h1>
+    <p class="subtitle">View and track your recent purchases</p>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-bar">
+      <input type="text" pInputText placeholder="Search" [(ngModel)]="searchTerm" (input)="onSearch()">
+    </div>
+    <div class="status-tabs">
+      <button [class.active]="activeStatus === 'Active'" (click)="filterByStatus('Active')">Active</button>
+      <button [class.active]="activeStatus === 'Completed'" (click)="filterByStatus('Completed')">Completed</button>
+    </div>
+  </div>
+
+  <div class="orders-grid" *ngIf="orders.length > 0">
+    <div class="order-card" *ngFor="let order of orders">
+      <div class="order-header">
+        <div class="order-meta">
+          <span class="order-id">#{{ (order.id || order.Id || '').substring(0, 8) }}</span>
+          <span class="order-date">{{ (order.createdAt || order.CreatedAt) | date:'mediumDate' }}</span>
+        </div>
+        <p-tag [value]="order.status || order.Status" [severity]="getSeverity(order.status || order.Status)"></p-tag>
+      </div>
+      
+      <div class="order-body">
+        <div class="item-summary">
+          <span class="item-count">{{ (order.orderItems || order.OrderItems || []).length }} Items</span>
+          <span class="total-amount">${{ order.totalAmount || order.TotalAmount }}</span>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <button pButton label="Track Order" icon="pi pi-map-marker" class="p-button-rounded p-button-sm" (click)="trackOrder(order)"></button>
+        <button pButton label="View Details" icon="pi pi-chevron-right" class="p-button-rounded p-button-sm p-button-text p-button-secondary" (click)="viewDetails(order)"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pagination-wrapper mt-4 mb-4" *ngIf="totalCount > pageSize">
+    <p-paginator 
+      [rows]="pageSize" 
+      [totalRecords]="totalCount" 
+      [first]="(currentPage - 1) * pageSize"
+      (onPageChange)="onPageChange($event)">
+    </p-paginator>
+  </div>
+
+  <!-- Tracking Dialog -->
+  <p-dialog header="Order Tracking" [(visible)]="displayTracking" [modal]="true" [style]="{width: '450px'}" class="tracking-dialog">
+    <div class="tracking-content" *ngIf="selectedOrder">
+      <div class="order-info mb-4">
+        <p><strong>Order ID:</strong> {{ selectedOrder.id || selectedOrder.Id }}</p>
+        <p><strong>Placed on:</strong> {{ (selectedOrder.createdAt || selectedOrder.CreatedAt) | date:'medium' }}</p>
+      </div>
+      
+      <p-steps [model]="trackingSteps" [(activeIndex)]="activeStep" [readonly]="true"></p-steps>
+      
+      <div class="status-details mt-4 p-3 border-round bg-gray-50">
+        <div class="flex align-items-center gap-3">
+          <i class="pi pi-info-circle text-blue-500" style="font-size: 1.5rem"></i>
+          <div>
+            <h4 class="m-0">{{ trackingSteps[activeStep].label }}</h4>
+            <p class="m-0 text-600" *ngIf="activeStep === 0">Your order has been placed and is waiting for admin approval.</p>
+            <p class="m-0 text-600" *ngIf="activeStep === 1">Your order is on the way! Check your email for the delivery OTP.</p>
+            <p class="m-0 text-600" *ngIf="activeStep === 2">Your order has been successfully delivered. Thank you for shopping!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
+
+  <!-- Details Dialog -->
+  <p-dialog header="Order Details" [(visible)]="displayDetails" [modal]="true" [style]="{width: '500px'}" class="details-dialog">
+    <div class="details-content" *ngIf="selectedOrder">
+      <div class="order-header-info mb-4">
+        <div class="flex justify-content-between align-items-center mb-2">
+          <span class="text-xl font-bold">#{{ (selectedOrder.id || selectedOrder.Id || '').substring(0, 8) }}</span>
+          <p-tag [value]="selectedOrder.status || selectedOrder.Status" [severity]="getSeverity(selectedOrder.status || selectedOrder.Status)"></p-tag>
+        </div>
+        <p class="text-600 m-0">Placed on {{ (selectedOrder.createdAt || selectedOrder.CreatedAt) | date:'medium' }}</p>
+      </div>
+
+      <div class="items-list mb-4">
+        <h3 class="text-lg font-bold border-bottom-1 pb-2 mb-3">Items</h3>
+        <div class="item-row flex align-items-center gap-3 mb-3" *ngFor="let item of (selectedOrder.orderItems || selectedOrder.OrderItems || [])">
+          <div class="item-img bg-gray-100 border-round overflow-hidden" style="width: 50px; height: 50px;">
+            <img [src]="item.product?.imageUrl || 'assets/placeholder.png'" alt="Product" class="w-full h-full object-cover">
+          </div>
+          <div class="item-info flex-1">
+            <p class="font-bold m-0">{{ item.product?.name || 'Product ' + item.productId }}</p>
+            <p class="text-sm text-600 m-0">{{ item.quantity }} x ${{ item.price }}</p>
+          </div>
+          <div class="item-total font-bold">
+            ${{ item.price * item.quantity }}
+          </div>
+        </div>
+      </div>
+
+      <div class="order-summary p-3 bg-gray-50 border-round">
+        <div class="flex justify-content-between mb-2">
+          <span class="text-600">Subtotal</span>
+          <span>${{ selectedOrder.totalAmount || selectedOrder.TotalAmount }}</span>
+        </div>
+        <div class="flex justify-content-between mb-2">
+          <span class="text-600">Shipping</span>
+          <span class="text-green-500 font-bold">FREE</span>
+        </div>
+        <div class="flex justify-content-between pt-2 border-top-1 font-bold text-xl">
+          <span>Total</span>
+          <span>${{ selectedOrder.totalAmount || selectedOrder.TotalAmount }}</span>
+        </div>
+      </div>
+      
+      <div class="delivery-info mt-4" *ngIf="selectedOrder.address || selectedOrder.Address">
+        <h3 class="text-lg font-bold mb-2">Shipping Address</h3>
+        <p class="m-0 text-700">{{ (selectedOrder.address || selectedOrder.Address).street }}, {{ (selectedOrder.address || selectedOrder.Address).city }}</p>
+        <p class="m-0 text-700">{{ (selectedOrder.address || selectedOrder.Address).state }}, {{ (selectedOrder.address || selectedOrder.Address).country }}</p>
+      </div>
+    </div>
+  </p-dialog>
+
+  <div class="empty-orders" *ngIf="orders.length === 0">
+    <i class="pi pi-box" style="font-size: 5rem; color: #ddd"></i>
+    <p>No orders yet</p>
+    <button pButton label="Start Shopping" routerLink="/products" class="p-button-text"></button>
+  </div>
+</div>

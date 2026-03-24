@@ -1,0 +1,67 @@
+<div class="catalog-container">
+  <!-- Header Section -->
+  <div class="catalog-header">
+    <div class="title-section">
+      <div class="flex align-items-center gap-2" *ngIf="selectedCategory || searchTerm">
+        <button class="back-btn-header" (click)="clearCategory()">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <h1>{{ selectedCategory || 'Search' }}</h1>
+      </div>
+      <h1 *ngIf="!selectedCategory && !searchTerm">Catalog</h1>
+      <p class="subtitle" *ngIf="!selectedCategory && !searchTerm">Find the best parts for your bike</p>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-bar">
+    <div class="search-input-wrapper">
+      <i class="pi pi-search search-icon"></i>
+      <input 
+        type="text" 
+        pInputText 
+        placeholder="Search for products..." 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="onSearchChange($event)"
+        (keyup.enter)="onSearch()" 
+        class="custom-search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Categories Grid (Default View) -->
+  <div class="categories-grid" *ngIf="!selectedCategory && !searchTerm">
+    <div 
+      *ngFor="let cat of categories" 
+      class="category-card" 
+      (click)="selectCategory(cat)"
+    >
+      <span class="category-name">{{ cat }}</span>
+    </div>
+  </div>
+
+  <!-- Products Grid (When Category Selected or Searching) -->
+  <div class="product-grid" *ngIf="selectedCategory || searchTerm">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="product-image">
+        <img [src]="product.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product.name" alt="{{ product.name }}">
+        <button class="favorite-btn"><i class="pi pi-heart"></i></button>
+      </div>
+      <div class="product-details">
+        <span class="product-type">{{ product.type }}</span>
+        <h3>{{ product.name }}</h3>
+        <div class="price-row">
+          <span class="price">${{ product.price }}</span>
+          <button class="add-btn" (click)="addToCart(product.id)"><i class="pi pi-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="products.length === 0 && (selectedCategory || searchTerm)">
+    <i class="pi pi-box"></i>
+    <p>No products found</p>
+    <button pButton label="Back to Categories" (click)="clearCategory()" class="p-button-text"></button>
+  </div>
+</div>

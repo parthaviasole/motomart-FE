@@ -1,0 +1,175 @@
+<div class="orders-container">
+  <p-toast></p-toast>
+  <div class="content-card">
+    <div class="card-header">
+      <div class="header-left">
+        <h2 class="title-text">Orders</h2>
+        <span class="subtitle-text">Monitor and manage customer transactions</span>
+      </div>
+      <div class="header-actions">
+        <div class="search-wrapper">
+          <i class="pi pi-search search-icon"></i>
+          <input type="text" pInputText placeholder="Search orders..." [(ngModel)]="searchTerm" (input)="onSearchChange()" class="p-inputtext-sm search-input">
+        </div>
+        <p-select [options]="statusOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusChange()" placeholder="Filter Status" styleClass="p-select-sm status-select"></p-select>
+      </div>
+    </div>
+
+    <p-table #dt [value]="orders" [lazy]="true" (onLazyLoad)="loadOrders($event)" [rows]="pageSize" [totalRecords]="totalCount" [rowHover]="true" responsiveLayout="scroll" styleClass="p-datatable-custom">
+      <ng-template pTemplate="header">
+        <tr>
+          <th><i class="pi pi-id-card header-icon"></i> ID</th>
+          <th><i class="pi pi-user header-icon"></i> Customer</th>
+          <th class="hidden-mobile"><i class="pi pi-clock header-icon"></i> Date</th>
+          <th><i class="pi pi-dollar header-icon"></i> Total</th>
+          <th class="hidden-mobile"><i class="pi pi-info-circle header-icon"></i> Status</th>
+          <th style="width: 10rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-order>
+        <tr class="order-row">
+          <td class="id-cell" [pTooltip]="order.id || order.Id || ''">
+            <span class="order-id">#{{ (order.id || order.Id || '').substring(0, 8).toUpperCase() }}</span>
+            <div class="visible-mobile mt-1">
+              <span class="status-pill" [ngClass]="'status-' + (order.status || order.Status || '').toLowerCase().replace(' ', '-')">
+                {{ order.status || order.Status }}
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="customer-info">
+              <div class="avatar-placeholder-circle">{{ (order.user?.name || order.User?.name || 'G').charAt(0) }}</div>
+              <div class="customer-details">
+                <span class="customer-name">{{ order.user?.name || order.User?.name || 'Guest' }}</span>
+                <span class="customer-email hidden-mobile">{{ order.user?.email || order.User?.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td class="hidden-mobile"><span class="order-date">{{ (order.createdAt || order.CreatedAt) | date:'d MMM, yyyy' }}</span></td>
+          <td class="price-cell"><strong>${{ order.totalAmount || order.TotalAmount }}</strong></td>
+          <td class="hidden-mobile">
+            <span class="status-pill" [ngClass]="'status-' + (order.status || order.Status || '').toLowerCase().replace(' ', '-')">
+              {{ order.status || order.Status }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-eye" class="p-button-text p-button-rounded p-button-secondary action-btn" (click)="viewDetails(order)" pTooltip="View Details"></button>
+              <button pButton type="button" icon="pi pi-truck" class="p-button-text p-button-rounded p-button-success action-btn" *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)" pTooltip="Start Delivery"></button>
+              <button pButton type="button" icon="pi pi-key" class="p-button-text p-button-rounded p-button-warning action-btn" *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)" pTooltip="Verify OTP"></button>
+              <button pButton type="button" icon="pi pi-check" class="p-button-text p-button-rounded p-button-secondary action-btn" *ngIf="(order.status || order.Status) === 'Delivered'" [disabled]="true" pTooltip="Completed"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <!-- Pagination Footer -->
+    <div class="table-footer-custom" *ngIf="totalCount > 0">
+      <div class="total-info">
+        Showing <strong>{{ (pageNumber - 1) * pageSize + 1 }}</strong> - <strong>{{ (pageNumber * pageSize) > totalCount ? totalCount : (pageNumber * pageSize) }}</strong> of <strong>{{ totalCount }}</strong> orders
+      </div>
+      
+      <div class="pagination-right">
+        <div class="page-nav-btns">
+          <button 
+            pButton 
+            type="button" 
+            label="Previous" 
+            icon="pi pi-chevron-left"
+            class="p-button-text p-button-secondary p-button-sm nav-btn"
+            [disabled]="pageNumber === 1" 
+            (click)="goToPage(pageNumber - 1)">
+          </button>
+          <div class="page-indicator">Page {{ pageNumber }} of {{ totalPages }}</div>
+          <button 
+            pButton 
+            type="button" 
+            label="Next" 
+            icon="pi pi-chevron-right"
+            iconPos="right"
+            class="p-button-text p-button-secondary p-button-sm nav-btn"
+            [disabled]="pageNumber === totalPages" 
+            (click)="goToPage(pageNumber + 1)">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTP Verification Dialog -->
+  <p-dialog header="Verify Delivery OTP" [(visible)]="displayOtpDialog" [modal]="true" [style]="{width: '350px'}">
+    <div class="p-fluid">
+      <div class="field">
+        <label for="otp">Enter OTP sent to user</label>
+        <input type="text" pInputText id="otp" [(ngModel)]="otpInput" maxlength="6" placeholder="######" class="w-full">
+      </div>
+    </div>
+    <ng-template pTemplate="footer">
+      <div class="flex gap-2 w-full">
+        <button pButton label="Resend OTP" icon="pi pi-refresh" class="p-button-text p-button-secondary flex-1" (click)="resendOtp()"></button>
+        <button pButton label="Confirm" icon="pi pi-check" class="p-button-success flex-1" (click)="verifyOtp()" [disabled]="otpInput.length < 6"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Order Details Dialog -->
+  <p-dialog header="Order Details" [(visible)]="displayDetailsDialog" [modal]="true" [style]="{width: '600px'}">
+    <div *ngIf="selectedOrder" class="p-3">
+      <div class="flex flex-column md:flex-row justify-content-between mb-4 gap-3">
+        <div>
+          <label class="block text-500 font-medium mb-1">Customer</label>
+          <div class="text-900 font-bold">{{ selectedOrder.user?.name || selectedOrder.User?.name || 'Guest' }}</div>
+          <div class="text-600">{{ selectedOrder.user?.email || selectedOrder.User?.email }}</div>
+        </div>
+        <div class="md:text-right">
+          <label class="block text-500 font-medium mb-1">Status</label>
+          <p-tag [value]="selectedOrder.status || selectedOrder.Status" [severity]="getSeverity(selectedOrder.status || selectedOrder.Status)"></p-tag>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-500 font-medium mb-2">Shipping Address</label>
+        <div class="p-3 border-round bg-gray-50 text-700" *ngIf="selectedOrder.address || selectedOrder.Address">
+          {{ (selectedOrder.address || selectedOrder.Address).street }}, 
+          {{ (selectedOrder.address || selectedOrder.Address).city }}, 
+          {{ (selectedOrder.address || selectedOrder.Address).state }}, 
+          {{ (selectedOrder.address || selectedOrder.Address).country }}
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-500 font-medium mb-2">Order Items</label>
+        <div class="border-round border-1 border-200 overflow-hidden">
+          <table class="w-full text-left" style="border-collapse: collapse;">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="p-2 border-bottom-1 border-200">Product</th>
+                <th class="p-2 border-bottom-1 border-200 text-right">Price</th>
+                <th class="p-2 border-bottom-1 border-200 text-center">Qty</th>
+                <th class="p-2 border-bottom-1 border-200 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of (selectedOrder.orderItems || selectedOrder.OrderItems || [])" class="border-bottom-1 border-200">
+                <td class="p-2 flex align-items-center gap-2">
+                  <img [src]="item.product?.imageUrl || 'assets/placeholder.png'" style="width: 32px; height: 32px; object-fit: cover;" class="border-round">
+                  <span>{{ item.product?.name || 'Product ' + item.productId }}</span>
+                </td>
+                <td class="p-2 text-right">${{ item.price }}</td>
+                <td class="p-2 text-center">{{ item.quantity }}</td>
+                <td class="p-2 text-right font-bold">${{ item.price * item.quantity }}</td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-gray-50">
+              <tr>
+                <td colspan="3" class="p-2 text-right font-bold">Grand Total</td>
+                <td class="p-2 text-right font-bold text-xl text-primary">${{ selectedOrder.totalAmount || selectedOrder.TotalAmount }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
+</div>

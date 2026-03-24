@@ -1,0 +1,76 @@
+<div class="products-container">
+  <!-- Header Section -->
+  <div class="products-header">
+    <div class="title-section">
+      <h1>Products</h1>
+      <p class="subtitle">Explore our wide range of bike parts</p>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-input-wrapper">
+      <i class="pi pi-search search-icon"></i>
+      <input 
+        type="text" 
+        pInputText 
+        placeholder="Search for products..." 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="onSearchChange($event)"
+        (keyup.enter)="onSearch()" 
+        class="custom-search-input"
+      />
+    </div>
+  </div>
+
+  <!-- Categories Section (Horizontal Scroll) -->
+  <div class="category-scroll">
+    <div 
+      *ngFor="let cat of categories" 
+      class="category-pill" 
+      [class.active]="selectedCategory === cat"
+      (click)="selectCategory(cat)"
+    >
+      <span>{{ cat }}</span>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="product-grid" *ngIf="products.length > 0">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="product-image">
+        <img [src]="product.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + product.name" alt="{{ product.name }}">
+        <button class="favorite-btn"><i class="pi pi-heart"></i></button>
+      </div>
+      <div class="product-details">
+        <span class="product-type">{{ product.type }}</span>
+        <h3>{{ product.name }}</h3>
+        <div class="price-row">
+          <span class="price">${{ product.price }}</span>
+          <button class="add-btn" (click)="addToCart(product.id)"><i class="pi pi-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="products.length === 0">
+    <i class="pi pi-box"></i>
+    <p>No products found in this category</p>
+  </div>
+
+  <!-- Pagination Section -->
+  <div class="pagination-section mt-4 mb-4" *ngIf="totalRecords > pageSize">
+    <p-paginator 
+      [rows]="pageSize" 
+      [totalRecords]="totalRecords" 
+      [first]="(currentPage - 1) * pageSize"
+      (onPageChange)="onPageChange($event)"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+      [rowsPerPageOptions]="[10, 20, 50]">
+    </p-paginator>
+  </div>
+</div>

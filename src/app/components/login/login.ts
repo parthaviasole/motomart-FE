@@ -53,7 +53,13 @@ export class LoginComponent extends AutoUnsubscribeComponent {
     .subscribe({
       next: (res) => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Login successful' });
-        setTimeout(() => this.router.navigate(['/']), 1000);
+        setTimeout(() => {
+          if (res.role === 'Admin') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+        }, 1000);
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error || 'Invalid credentials' });

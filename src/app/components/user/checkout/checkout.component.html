@@ -1,0 +1,126 @@
+<app-loader *ngIf="isLoading"></app-loader>
+
+<div class="checkout-container">
+  <div class="header-section">
+    <div class="header-top">
+      <button class="back-btn" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <h1>Checkout</h1>
+    </div>
+    <p class="subtitle">Complete your purchase safely</p>
+  </div>
+
+  <div class="checkout-grid">
+    <div class="checkout-steps">
+      <!-- Address Selection -->
+      <section class="checkout-card">
+        <div class="card-header">
+          <i class="pi pi-map-marker"></i>
+          <h2>Delivery Address</h2>
+        </div>
+        
+        <div class="address-list" *ngIf="addresses.length > 0">
+          <div class="address-item" *ngFor="let addr of addresses" 
+               [class.active]="selectedAddressId === (addr.Id || addr.id)" 
+               (click)="selectedAddressId = (addr.Id || addr.id)">
+            <div class="selection-indicator">
+              <i class="pi pi-check-circle" *ngIf="selectedAddressId === (addr.Id || addr.id)"></i>
+              <div class="circle" *ngIf="selectedAddressId !== (addr.Id || addr.id)"></div>
+            </div>
+            <div class="address-details">
+              <p class="street"><strong>{{ addr.Street || addr.street }}</strong></p>
+              <p class="location">{{ addr.City || addr.city }}, {{ addr.State || addr.state }}</p>
+              <p class="postal">{{ addr.PostalCode || addr.postalCode }}, {{ addr.Country || addr.country }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="add-address-trigger">
+          <button pButton label="Add New Address" icon="pi pi-plus" class="p-button-text p-button-sm" (click)="showAddAddress = !showAddAddress"></button>
+        </div>
+
+        <div class="new-address-form" *ngIf="showAddAddress">
+          <div class="p-fluid">
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">Street Address</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.street" placeholder="e.g. 123 Bike Lane" class="w-full">
+            </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">City</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.city" placeholder="City" class="w-full">
+            </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">State</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.state" placeholder="State" class="w-full">
+            </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">Postal Code</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.postalCode" placeholder="######" class="w-full">
+            </div>
+            <div class="field mb-3">
+              <label class="block text-sm font-bold mb-1">Country</label>
+              <input type="text" pInputText [(ngModel)]="newAddress.country" class="w-full">
+            </div>
+            <button pButton label="Save Address" icon="pi pi-check" (click)="addAddress()" class="p-button-primary w-full"></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Payment Method -->
+      <section class="checkout-card mt-4">
+        <div class="card-header">
+          <i class="pi pi-credit-card"></i>
+          <h2>Payment Method</h2>
+        </div>
+        
+        <div class="payment-options">
+          <div class="payment-method-card" [class.active]="paymentMethod === 'COD'" (click)="paymentMethod = 'COD'">
+            <p-radioButton name="payment" value="COD" [(ngModel)]="paymentMethod" inputId="cod"></p-radioButton>
+            <div class="method-info">
+              <span class="method-name">Cash on Delivery</span>
+              <span class="method-desc">Pay when you receive your order</span>
+            </div>
+          </div>
+          
+          <div class="payment-method-card disabled">
+            <p-radioButton name="payment" value="UPI" [(ngModel)]="paymentMethod" inputId="upi" [disabled]="true"></p-radioButton>
+            <div class="method-info">
+              <span class="method-name">UPI (Disabled)</span>
+              <span class="method-desc">Coming soon</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="checkout-sidebar">
+      <div class="summary-card">
+        <h3>Order Summary</h3>
+        <div class="summary-items">
+          <div class="summary-item" *ngFor="let item of cartItems">
+            <div class="item-info">
+              <span class="qty">{{ item.quantity }}x</span>
+              <span class="name">{{ item.product?.name }}</span>
+            </div>
+            <span class="price">${{ (item.product?.price || 0) * item.quantity }}</span>
+          </div>
+        </div>
+        
+        <div class="summary-divider"></div>
+        
+        <div class="summary-total">
+          <span>Total</span>
+          <span class="amount">${{ total }}</span>
+        </div>
+        
+        <button pButton label="Place Order" icon="pi pi-lock" class="p-button-success p-button-lg w-full mt-4" (click)="placeOrder()" [disabled]="!selectedAddressId"></button>
+        
+        <p class="secure-notice">
+          <i class="pi pi-shield"></i>
+          Secure checkout by Motomart
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
