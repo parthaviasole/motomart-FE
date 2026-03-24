@@ -28,10 +28,10 @@
         <tr>
           <th style="width: 3rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
           <th><i class="pi pi-box header-icon"></i> Product Name</th>
-          <th><i class="pi pi-tag header-icon"></i> Type</th>
+          <th class="hidden-mobile"><i class="pi pi-tag header-icon"></i> Type</th>
           <th><i class="pi pi-dollar header-icon"></i> Price</th>
-          <th><i class="pi pi-database header-icon"></i> Stock</th>
-          <th><i class="pi pi-clock header-icon"></i> Created</th>
+          <th class="hidden-mobile"><i class="pi pi-database header-icon"></i> Stock</th>
+          <th class="hidden-mobile"><i class="pi pi-clock header-icon"></i> Created</th>
           <th style="width: 8rem"></th>
         </tr>
       </ng-template>
@@ -41,21 +41,24 @@
           <td>
             <div class="product-info">
               <div class="avatar-placeholder-circle">{{ product.name.charAt(0) }}</div>
-              <span class="product-name">{{ product.name }}</span>
+              <div class="product-details-mobile">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-type-mobile visible-mobile">{{ product.type }}</span>
+              </div>
             </div>
           </td>
-          <td>
+          <td class="hidden-mobile">
             <span class="type-pill">
               {{ product.type }}
             </span>
           </td>
           <td class="price-cell"><strong>{{ product.price | currency }}</strong></td>
-          <td>
+          <td class="hidden-mobile">
             <span class="stock-badge" [class.low-stock]="product.quantity < 10">
               {{ product.quantity }} units
             </span>
           </td>
-          <td><span class="created-date">{{ product.createdAt | date:'d MMM, yyyy' }}</span></td>
+          <td class="hidden-mobile"><span class="created-date">{{ product.createdAt | date:'d MMM, yyyy' }}</span></td>
           <td class="actions-cell">
             <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-secondary action-btn" (click)="editProduct(product)" pTooltip="Edit Product"></button>
             <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger action-btn" (click)="confirmDelete(product)" pTooltip="Delete Product"></button>

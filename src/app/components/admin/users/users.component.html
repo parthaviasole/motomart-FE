@@ -19,30 +19,39 @@
       <ng-template pTemplate="header">
         <tr>
           <th style="width: 3rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Role</th>
-          <th>Joined Date</th>
+          <th><i class="pi pi-user header-icon"></i> Full Name</th>
+          <th class="hidden-mobile"><i class="pi pi-envelope header-icon"></i> Email</th>
+          <th class="hidden-mobile"><i class="pi pi-phone header-icon"></i> Phone</th>
+          <th><i class="pi pi-briefcase header-icon"></i> Role</th>
+          <th class="hidden-mobile"><i class="pi pi-clock header-icon"></i> Joined Date</th>
+          <th style="width: 3rem"></th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-user>
-        <tr>
+        <tr class="user-row">
           <td><p-tableCheckbox [value]="user"></p-tableCheckbox></td>
           <td>
             <div class="user-info">
-              <div class="avatar-placeholder">{{ user.name.charAt(0) }}</div>
-              <span>{{ user.name }}</span>
+              <div class="avatar-placeholder-circle">{{ user.name.charAt(0) }}</div>
+              <div class="user-details-mobile">
+                <span class="user-name">{{ user.name }}</span>
+                <span class="user-email-mobile visible-mobile">{{ user.email }}</span>
+              </div>
             </div>
           </td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.phoneNumber || 'N/A' }}</td>
+          <td class="hidden-mobile"><span class="email-text">{{ user.email }}</span></td>
+          <td class="hidden-mobile"><span class="phone-text">{{ user.phoneNumber || 'N/A' }}</span></td>
           <td>
-            <span class="role-badge" [class.role-admin]="user.role === 'Admin'">
+            <span class="role-pill" [ngClass]="'role-' + user.role.toLowerCase()">
               {{ user.role }}
             </span>
           </td>
-          <td>{{ user.createdAt | date:'yyyy-M-d' }}</td>
+          <td class="hidden-mobile">
+            <span class="created-date">{{ user.createdAt | date:'d MMM, yyyy' }}</span>
+          </td>
+          <td>
+            <button pButton type="button" icon="pi pi-ellipsis-h" class="p-button-text p-button-secondary action-btn"></button>
+          </td>
         </tr>
       </ng-template>
     </p-table>

@@ -74,6 +74,21 @@ import { BottomNavComponent } from '../../shared/bottom-nav/bottom-nav.component
       padding: 2rem;
       padding-bottom: 6rem;
     }
+    @media screen and (max-width: 768px) {
+      .admin-content {
+        padding: 1rem;
+        padding-bottom: 6rem;
+      }
+      .common-header {
+        padding: 1rem;
+      }
+      .header-tagline {
+        display: none;
+      }
+      .header-divider {
+        display: none;
+      }
+    }
   `]
 })
 export class AdminLayoutComponent {}
