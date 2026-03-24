@@ -1,6 +1,6 @@
 .profile-container {
-  padding: 1rem;
-  background-color: #f8f9fc;
+  padding: 0 1.25rem 1rem 1.25rem;
+  background-color: #f8fafc;
   min-height: 100%;
 }
 
@@ -8,16 +8,41 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  padding-top: 0.5rem;
+  margin-bottom: 1.25rem;
 }
 
-.cancel-btn {
-  background: none;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.back-btn {
+  background: white;
   border: none;
-  color: #2ecc71;
-  font-weight: 600;
+  color: #1a1a1a;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.back-btn:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.back-btn i {
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .edit-section {
@@ -40,7 +65,7 @@
   border-radius: 1.5rem;
   padding: 2rem 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .text-center {
@@ -103,12 +128,12 @@
 .profile-card {
   background: white;
   border-radius: 1.5rem;
-  padding: 1.25rem;
+  padding: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-bottom: 1.5rem;
 }
 
 .profile-info {

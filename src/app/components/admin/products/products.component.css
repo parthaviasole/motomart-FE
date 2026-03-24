@@ -206,3 +206,21 @@
     padding: 0.75rem 0.5rem;
   }
 }
+
+@media screen and (max-width: 576px) {
+  .field-group {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  :host ::ng-deep .p-inputtext,
+  :host ::ng-deep .p-textarea {
+    width: 100% !important;
+  }
+  
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+}

@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { BottomNavComponent } from '../../shared/bottom-nav/bottom-nav.component';
 import { CartService } from '../../../services/cart.service';
 import { CommonModule } from '@angular/common';
 import { Badge } from 'primeng/badge';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-layout',
@@ -11,7 +12,7 @@ import { Badge } from 'primeng/badge';
   imports: [RouterModule, BottomNavComponent, CommonModule, Badge],
   template: `
     <div class="user-layout">
-      <header class="common-header">
+      <header class="common-header" *ngIf="!hideHeader">
         <div class="header-left-section">
           <div class="logo-container">
             <i class="pi pi-bolt logo-icon"></i>
@@ -29,7 +30,7 @@ import { Badge } from 'primeng/badge';
           </a>
         </div>
       </header>
-      <main class="user-content">
+      <main class="user-content" [class.no-header]="hideHeader">
         <router-outlet></router-outlet>
       </main>
       <app-bottom-nav></app-bottom-nav>
@@ -122,12 +123,23 @@ import { Badge } from 'primeng/badge';
       overflow-y: auto;
       padding-bottom: 6rem;
     }
+    .user-content.no-header {
+      padding-top: 1rem;
+    }
   `]
 })
 export class UserLayoutComponent implements OnInit {
   cartCount: number = 0;
+  hideHeader: boolean = false;
 
-  constructor(private cartService: CartService) {}
+  constructor(private cartService: CartService, private router: Router) {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      // Show header on all pages including account
+      this.hideHeader = false;
+    });
+  }
 
   ngOnInit() {
     this.cartService.cartItems$.subscribe(() => {

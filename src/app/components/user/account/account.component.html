@@ -1,9 +1,11 @@
 <div class="profile-container">
   <p-toast></p-toast>
   <div class="header">
-    <h1>{{ isEditMode ? 'Edit Profile' : 'Profile' }}</h1>
+    <div class="header-left">
+      <button class="back-btn" *ngIf="isEditMode" (click)="cancelEdit()"><i class="pi pi-chevron-left"></i></button>
+      <h1>{{ isEditMode ? 'Edit Profile' : 'Profile' }}</h1>
+    </div>
     <button class="more-btn" *ngIf="!isEditMode"><i class="pi pi-ellipsis-h"></i></button>
-    <button class="cancel-btn" *ngIf="isEditMode" (click)="cancelEdit()">Cancel</button>
   </div>
 
   <!-- Profile Card (View Mode) -->
