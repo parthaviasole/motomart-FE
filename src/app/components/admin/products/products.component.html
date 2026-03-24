@@ -3,10 +3,13 @@
   <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
   <div class="content-card">
     <div class="card-header">
-      <h2>Products</h2>
+      <div class="header-left">
+        <h2 class="title-text">Products</h2>
+        <span class="subtitle-text">Manage and update your parts inventory</span>
+      </div>
       <div class="header-actions">
-        <button pButton label="Add Product" icon="pi pi-plus" class="p-button-primary p-button-sm" (click)="showAddProductDialog()"></button>
-        <button pButton label="Bulk Upload" icon="pi pi-upload" class="p-button-secondary p-button-sm ml-2" (click)="showBulkUploadDialog()"></button>
+        <button pButton label="Add Product" icon="pi pi-plus" class="p-button-primary p-button-sm add-btn" (click)="showAddProductDialog()"></button>
+        <button pButton label="Bulk Upload" icon="pi pi-upload" class="p-button-outlined p-button-secondary p-button-sm ml-2 bulk-btn" (click)="showBulkUploadDialog()"></button>
       </div>
     </div>
 
@@ -24,30 +27,38 @@
       <ng-template pTemplate="header">
         <tr>
           <th style="width: 3rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-          <th>Product Name</th>
-          <th>Type</th>
-          <th>Price</th>
-          <th>Size</th>
-          <th>Date</th>
-          <th style="width: 8rem">Actions</th>
+          <th><i class="pi pi-box header-icon"></i> Product Name</th>
+          <th><i class="pi pi-tag header-icon"></i> Type</th>
+          <th><i class="pi pi-dollar header-icon"></i> Price</th>
+          <th><i class="pi pi-database header-icon"></i> Stock</th>
+          <th><i class="pi pi-clock header-icon"></i> Created</th>
+          <th style="width: 8rem"></th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-product>
-        <tr>
+        <tr class="product-row">
           <td><p-tableCheckbox [value]="product"></p-tableCheckbox></td>
           <td>
             <div class="product-info">
-              <img [src]="product.imageUrl || 'assets/placeholder.jpg'" alt="product" />
-              <span>{{ product.name }}</span>
+              <div class="avatar-placeholder-circle">{{ product.name.charAt(0) }}</div>
+              <span class="product-name">{{ product.name }}</span>
             </div>
           </td>
-          <td>{{ product.type }}</td>
-          <td class="price-cell">{{ product.price | currency }}</td>
-          <td>{{ product.quantity }} ml</td>
-          <td>{{ product.createdAt | date:'yyyy-M-d' }}</td>
+          <td>
+            <span class="type-pill">
+              {{ product.type }}
+            </span>
+          </td>
+          <td class="price-cell"><strong>{{ product.price | currency }}</strong></td>
+          <td>
+            <span class="stock-badge" [class.low-stock]="product.quantity < 10">
+              {{ product.quantity }} units
+            </span>
+          </td>
+          <td><span class="created-date">{{ product.createdAt | date:'d MMM, yyyy' }}</span></td>
           <td class="actions-cell">
-            <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-primary" (click)="editProduct(product)" pTooltip="Edit Product"></button>
-            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger" (click)="confirmDelete(product)" pTooltip="Delete Product"></button>
+            <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-secondary action-btn" (click)="editProduct(product)" pTooltip="Edit Product"></button>
+            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger action-btn" (click)="confirmDelete(product)" pTooltip="Delete Product"></button>
           </td>
         </tr>
       </ng-template>
@@ -152,26 +163,30 @@
       </ng-template>
     </p-dialog>
 
-    <!-- Simplified Pagination Footer -->
-    <div class="table-footer-custom mt-4" *ngIf="totalRecords > 0">
-      <div class="total-count-display">
-        <span>{{ totalRecords }}</span> Products
+    <!-- Pagination Footer -->
+    <div class="table-footer-custom" *ngIf="totalRecords > 0">
+      <div class="total-info">
+        Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> - <strong>{{ (currentPage * pageSize) > totalRecords ? totalRecords : (currentPage * pageSize) }}</strong> of <strong>{{ totalRecords }}</strong> products
       </div>
       
-      <div class="pagination-controls">
-        <div class="page-buttons">
-          <button class="page-btn prev" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-            <i class="pi pi-chevron-left"></i>
+      <div class="pagination-right">
+        <div class="page-nav-btns">
+          <button 
+            pButton 
+            type="button" 
+            label="Previous" 
+            class="p-button-text p-button-secondary p-button-sm nav-btn"
+            [disabled]="currentPage === 1" 
+            (click)="goToPage(currentPage - 1)">
           </button>
-          
-          <ng-container *ngFor="let p of getPagesArray()">
-            <button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">
-              {{ p }}
-            </button>
-          </ng-container>
-
-          <button class="page-btn next" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
-            <i class="pi pi-chevron-right"></i>
+          <div class="page-indicator">Page {{ currentPage }} of {{ totalPages }}</div>
+          <button 
+            pButton 
+            type="button" 
+            label="Next" 
+            class="p-button-text p-button-secondary p-button-sm nav-btn"
+            [disabled]="currentPage === totalPages" 
+            (click)="goToPage(currentPage + 1)">
           </button>
         </div>
       </div>

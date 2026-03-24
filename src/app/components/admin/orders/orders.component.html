@@ -1,68 +1,93 @@
-<p-toast></p-toast>
-<div class="admin-orders-container">
-  <h1>Order Management</h1>
-
-  <div class="toolbar mb-4">
-    <input type="text" pInputText placeholder="Search by customer or product" [(ngModel)]="searchTerm" (input)="onSearchChange()">
-    <p-select [options]="statusOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusChange()" placeholder="Filter by Status" styleClass="w-full md:w-14rem"></p-select>
-</div>
-
-  <p-table #dt [value]="orders" [lazy]="true" (onLazyLoad)="loadOrders($event)" [rows]="pageSize" [totalRecords]="totalCount" [rowHover]="true" responsiveLayout="scroll" styleClass="p-datatable-custom">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>ID</th>
-        <th>Customer</th>
-        <th>Date</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th style="width: 10rem">Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-order>
-      <tr>
-        <td class="id-cell" [pTooltip]="order.id || order.Id || ''">{{ (order.id || order.Id || '').substring(0, 8) }}...</td>
-        <td>
-          <strong>{{ order.user?.name || order.User?.name || 'Guest' }}</strong><br>
-          <small>{{ order.user?.email || order.User?.email }}</small>
-        </td>
-        <td>{{ (order.createdAt || order.CreatedAt) | date:'short' }}</td>
-        <td>${{ order.totalAmount || order.TotalAmount }}</td>
-        <td>
-          <p-tag [value]="order.status || order.Status" [severity]="getSeverity(order.status || order.Status)"></p-tag>
-        </td>
-        <td class="actions-cell">
-          <div class="action-buttons">
-            <button pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-info p-button-sm" (click)="viewDetails(order)" pTooltip="View Details"></button>
-            <button pButton type="button" icon="pi pi-truck" class="p-button-rounded p-button-success p-button-sm" *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)" pTooltip="Start Delivery"></button>
-            <button pButton type="button" icon="pi pi-key" class="p-button-rounded p-button-warning p-button-sm" *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)" pTooltip="Verify OTP"></button>
-            <button pButton type="button" icon="pi pi-check" class="p-button-rounded p-button-secondary p-button-sm" *ngIf="(order.status || order.Status) === 'Delivered'" [disabled]="true" pTooltip="Completed"></button>
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-
-  <!-- Simplified Pagination Footer -->
-  <div class="table-footer-custom mt-4" *ngIf="totalCount > 0">
-    <div class="total-count-display">
-      <span>{{ totalCount }}</span> Orders
+<div class="orders-container">
+  <p-toast></p-toast>
+  <div class="content-card">
+    <div class="card-header">
+      <div class="header-left">
+        <h2 class="title-text">Orders</h2>
+        <span class="subtitle-text">Monitor and manage customer transactions</span>
+      </div>
+      <div class="header-actions">
+        <div class="search-wrapper">
+          <i class="pi pi-search search-icon"></i>
+          <input type="text" pInputText placeholder="Search orders..." [(ngModel)]="searchTerm" (input)="onSearchChange()" class="p-inputtext-sm search-input">
+        </div>
+        <p-select [options]="statusOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusChange()" placeholder="Filter Status" styleClass="p-select-sm status-select"></p-select>
+      </div>
     </div>
-    
-    <div class="pagination-controls">
-      <div class="page-buttons">
-        <button class="page-btn prev" [disabled]="pageNumber === 1" (click)="goToPage(pageNumber - 1)">
-          <i class="pi pi-chevron-left"></i>
-        </button>
-        
-        <ng-container *ngFor="let p of getPagesArray()">
-          <button class="page-btn" [class.active]="p === pageNumber" (click)="goToPage(p)">
-            {{ p }}
-          </button>
-        </ng-container>
 
-        <button class="page-btn next" [disabled]="pageNumber === totalPages" (click)="goToPage(pageNumber + 1)">
-          <i class="pi pi-chevron-right"></i>
-        </button>
+    <p-table #dt [value]="orders" [lazy]="true" (onLazyLoad)="loadOrders($event)" [rows]="pageSize" [totalRecords]="totalCount" [rowHover]="true" responsiveLayout="scroll" styleClass="p-datatable-custom">
+      <ng-template pTemplate="header">
+        <tr>
+          <th><i class="pi pi-id-card header-icon"></i> ID</th>
+          <th><i class="pi pi-user header-icon"></i> Customer</th>
+          <th><i class="pi pi-clock header-icon"></i> Date</th>
+          <th><i class="pi pi-dollar header-icon"></i> Total</th>
+          <th><i class="pi pi-info-circle header-icon"></i> Status</th>
+          <th style="width: 10rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-order>
+        <tr class="order-row">
+          <td class="id-cell" [pTooltip]="order.id || order.Id || ''">
+            <span class="order-id">#{{ (order.id || order.Id || '').substring(0, 8).toUpperCase() }}</span>
+          </td>
+          <td>
+            <div class="customer-info">
+              <div class="avatar-placeholder-circle">{{ (order.user?.name || order.User?.name || 'G').charAt(0) }}</div>
+              <div class="customer-details">
+                <span class="customer-name">{{ order.user?.name || order.User?.name || 'Guest' }}</span>
+                <span class="customer-email">{{ order.user?.email || order.User?.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td><span class="order-date">{{ (order.createdAt || order.CreatedAt) | date:'d MMM, yyyy' }}</span></td>
+          <td class="price-cell"><strong>${{ order.totalAmount || order.TotalAmount }}</strong></td>
+          <td>
+            <span class="status-pill" [ngClass]="'status-' + (order.status || order.Status || '').toLowerCase().replace(' ', '-')">
+              {{ order.status || order.Status }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-eye" class="p-button-text p-button-rounded p-button-secondary action-btn" (click)="viewDetails(order)" pTooltip="View Details"></button>
+              <button pButton type="button" icon="pi pi-truck" class="p-button-text p-button-rounded p-button-success action-btn" *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)" pTooltip="Start Delivery"></button>
+              <button pButton type="button" icon="pi pi-key" class="p-button-text p-button-rounded p-button-warning action-btn" *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)" pTooltip="Verify OTP"></button>
+              <button pButton type="button" icon="pi pi-check" class="p-button-text p-button-rounded p-button-secondary action-btn" *ngIf="(order.status || order.Status) === 'Delivered'" [disabled]="true" pTooltip="Completed"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <!-- Pagination Footer -->
+    <div class="table-footer-custom" *ngIf="totalCount > 0">
+      <div class="total-info">
+        Showing <strong>{{ (pageNumber - 1) * pageSize + 1 }}</strong> - <strong>{{ (pageNumber * pageSize) > totalCount ? totalCount : (pageNumber * pageSize) }}</strong> of <strong>{{ totalCount }}</strong> orders
+      </div>
+      
+      <div class="pagination-right">
+        <div class="page-nav-btns">
+          <button 
+            pButton 
+            type="button" 
+            label="Previous" 
+            icon="pi pi-chevron-left"
+            class="p-button-text p-button-secondary p-button-sm nav-btn"
+            [disabled]="pageNumber === 1" 
+            (click)="goToPage(pageNumber - 1)">
+          </button>
+          <div class="page-indicator">Page {{ pageNumber }} of {{ totalPages }}</div>
+          <button 
+            pButton 
+            type="button" 
+            label="Next" 
+            icon="pi pi-chevron-right"
+            iconPos="right"
+            class="p-button-text p-button-secondary p-button-sm nav-btn"
+            [disabled]="pageNumber === totalPages" 
+            (click)="goToPage(pageNumber + 1)">
+          </button>
+        </div>
       </div>
     </div>
   </div>

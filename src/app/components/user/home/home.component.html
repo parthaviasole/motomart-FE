@@ -11,10 +11,6 @@
       <h1 *ngIf="!selectedCategory && !searchTerm">Catalog</h1>
       <p class="subtitle" *ngIf="!selectedCategory && !searchTerm">Find the best parts for your bike</p>
     </div>
-    <div class="notification-badge" routerLink="/cart" style="cursor: pointer;">
-      <i class="pi pi-shopping-cart"></i>
-      <span class="badge-dot" *ngIf="cartCount > 0">{{ cartCount }}</span>
-    </div>
   </div>
 
   <!-- Search Section -->

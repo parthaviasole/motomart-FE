@@ -27,10 +27,12 @@ export class AdminOrdersComponent implements OnInit {
   orders: any[] = [];
   totalCount: number = 0;
   totalPages: number = 0;
+  pagesArray: number[] = [];
   pageSize: number = 10;
   pageNumber: number = 1;
   searchTerm: string = '';
   selectedStatus: string = '';
+  
   statusOptions = [
     { label: 'All Statuses', value: '' },
     { label: 'Pending', value: 'Pending' },
@@ -60,57 +62,69 @@ export class AdminOrdersComponent implements OnInit {
 
     this.orderService.getAllOrders(this.pageNumber, this.pageSize, this.searchTerm, undefined, this.selectedStatus).subscribe({
       next: (result: any) => {
+        // Use setTimeout to ensure change detection runs after the check
         setTimeout(() => {
           this.orders = result.items || result.Items || [];
           this.totalCount = result.totalCount || result.TotalCount || 0;
           this.totalPages = result.totalPages || result.TotalPages || 0;
-          this.cdr.detectChanges();
+          this.updatePagesArray();
+          this.cdr.markForCheck(); // markForCheck is safer for async updates
         });
       },
       error: (err) => {
         console.error('Admin: API Error loading orders', err);
-        this.orders = [];
-        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.orders = [];
+          this.cdr.markForCheck();
+        });
       }
     });
   }
 
+  updatePagesArray() {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    this.pagesArray = pages;
+  }
+
   onSearchChange() {
-    this.table.onLazyLoad.emit({
-      first: 0,
-      rows: this.pageSize
+    setTimeout(() => {
+      this.table.onLazyLoad.emit({
+        first: 0,
+        rows: this.pageSize
+      });
     });
   }
 
   onStatusChange() {
-    this.table.onLazyLoad.emit({
-      first: 0,
-      rows: this.pageSize
+    setTimeout(() => {
+      this.table.onLazyLoad.emit({
+        first: 0,
+        rows: this.pageSize
+      });
     });
   }
 
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
-    this.table.onLazyLoad.emit({
-      first: (page - 1) * this.pageSize,
-      rows: this.pageSize
+    setTimeout(() => {
+      this.table.onLazyLoad.emit({
+        first: (page - 1) * this.pageSize,
+        rows: this.pageSize
+      });
     });
   }
 
   changePageSize(newSize: number) {
     this.pageSize = newSize;
-    this.table.onLazyLoad.emit({
-      first: 0,
-      rows: this.pageSize
+    setTimeout(() => {
+      this.table.onLazyLoad.emit({
+        first: 0,
+        rows: this.pageSize
+      });
     });
-  }
-
-  getPagesArray(): number[] {
-    const pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
   }
 
   viewDetails(order: any) {
@@ -121,7 +135,9 @@ export class AdminOrdersComponent implements OnInit {
   proceedToDelivery(orderId: string) {
     this.orderService.updateOrderStatus(orderId, 'Out for Delivery').subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order status updated. OTP sent to user.' });
-      this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
+      setTimeout(() => {
+        this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
+      });
     });
   }
 
@@ -136,7 +152,9 @@ export class AdminOrdersComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'OTP Verified! Order marked as Delivered.' });
         this.displayOtpDialog = false;
-        this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
+        setTimeout(() => {
+          this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
+        });
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid OTP. Please try again or resend OTP.' });

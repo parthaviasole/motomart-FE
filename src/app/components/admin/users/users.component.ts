@@ -29,6 +29,7 @@ export class AdminUsersComponent implements OnInit {
   users: User[] = [];
   totalRecords = 0;
   totalPages = 0;
+  pagesArray: number[] = [];
   currentPage = 1;
   pageSize = 10;
 
@@ -50,36 +51,44 @@ export class AdminUsersComponent implements OnInit {
           this.users = res?.items || [];
           this.totalRecords = res?.totalCount || 0;
           this.totalPages = res?.totalPages || 0;
-          this.cdr.detectChanges();
+          this.updatePagesArray();
+          this.cdr.markForCheck();
         });
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
+        setTimeout(() => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users' });
+          this.cdr.markForCheck();
+        });
       }
     });
   }
 
+  updatePagesArray() {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    this.pagesArray = pages;
+  }
+
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
-    this.table.onLazyLoad.emit({
-      first: (page - 1) * this.pageSize,
-      rows: this.pageSize
+    setTimeout(() => {
+      this.table.onLazyLoad.emit({
+        first: (page - 1) * this.pageSize,
+        rows: this.pageSize
+      });
     });
   }
 
   changePageSize(newSize: number) {
     this.pageSize = newSize;
-    this.table.onLazyLoad.emit({
-      first: 0,
-      rows: this.pageSize
+    setTimeout(() => {
+      this.table.onLazyLoad.emit({
+        first: 0,
+        rows: this.pageSize
+      });
     });
-  }
-
-  getPagesArray(): number[] {
-    const pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
   }
 }

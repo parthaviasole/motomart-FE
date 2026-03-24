@@ -39,6 +39,7 @@ export class AdminProductsComponent implements OnInit {
   products: Product[] = [];
   totalRecords = 0;
   totalPages = 0;
+  pagesArray: number[] = [];
   currentPage = 1;
   pageSize = 10;
 
@@ -66,6 +67,47 @@ export class AdminProductsComponent implements OnInit {
   ) {}
 
   ngOnInit() {}
+
+  loadProducts(event: any) {
+    this.currentPage = Math.floor(event.first / event.rows) + 1;
+    this.pageSize = event.rows;
+
+    this.productService.getProducts(this.currentPage, this.pageSize).subscribe({
+      next: (res) => {
+        setTimeout(() => {
+          this.products = res?.items || [];
+          this.totalRecords = res?.totalCount || 0;
+          this.totalPages = res?.totalPages || 0;
+          this.updatePagesArray();
+          this.cdr.markForCheck();
+        });
+      },
+      error: () => {
+        setTimeout(() => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load products' });
+          this.cdr.markForCheck();
+        });
+      }
+    });
+  }
+
+  updatePagesArray() {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    this.pagesArray = pages;
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    setTimeout(() => {
+      this.table.onLazyLoad.emit({
+        first: (page - 1) * this.pageSize,
+        rows: this.pageSize
+      });
+    });
+  }
 
   showAddProductDialog() {
     this.newProduct = { name: '', type: '', price: 0, quantity: 0, details: '' };
@@ -192,48 +234,5 @@ export class AdminProductsComponent implements OnInit {
     this.displayAddDialog = false;
     this.uploading = false;
     this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize });
-  }
-
-  loadProducts(event: any) {
-    this.currentPage = Math.floor(event.first / event.rows) + 1;
-    this.pageSize = event.rows;
-
-    this.productService.getProducts(this.currentPage, this.pageSize).subscribe({
-      next: (res) => {
-        setTimeout(() => {
-          this.products = res?.items || [];
-          this.totalRecords = res?.totalCount || 0;
-          this.totalPages = res?.totalPages || 0;
-          this.cdr.detectChanges();
-        });
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load products' });
-      }
-    });
-  }
-
-  goToPage(page: number) {
-    if (page < 1 || page > this.totalPages) return;
-    this.table.onLazyLoad.emit({
-      first: (page - 1) * this.pageSize,
-      rows: this.pageSize
-    });
-  }
-
-  changePageSize(newSize: number) {
-    this.pageSize = newSize;
-    this.table.onLazyLoad.emit({
-      first: 0,
-      rows: this.pageSize
-    });
-  }
-
-  getPagesArray(): number[] {
-    const pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
   }
 }
