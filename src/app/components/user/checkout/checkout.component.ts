@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AddressService } from '../../../services/address.service';
 import { CartService } from '../../../services/cart.service';
 import { OrderService } from '../../../services/order.service';
+import { PaymentService } from '../../../services/payment.service';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -42,6 +43,7 @@ export class UserCheckoutComponent implements OnInit {
     private addressService: AddressService,
     private cartService: CartService,
     private orderService: OrderService,
+    private paymentService: PaymentService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private messageService: MessageService
@@ -136,6 +138,89 @@ export class UserCheckoutComponent implements OnInit {
       quantity: item.quantity
     }));
 
+    if (this.paymentMethod === 'UPI') {
+      this.handleRazorpayPayment(items);
+    } else {
+      this.placeCodOrder(items);
+    }
+  }
+
+  private handleRazorpayPayment(items: any[]) {
+    this.isLoading = true;
+    this.paymentService.createRazorpayOrder(this.total, 'receipt_' + Date.now()).subscribe({
+      next: (orderData) => {
+        const options = {
+          key: orderData.keyId,
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: 'MotoMart',
+          description: 'Payment for your order',
+          order_id: orderData.orderId,
+          handler: (response: any) => {
+            this.verifyAndPlaceOrder(items, response);
+          },
+          prefill: {
+            name: '', // Optional: get from current user profile
+            email: '',
+            contact: ''
+          },
+          theme: {
+            color: '#3399cc'
+          }
+        };
+        
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', (response: any) => {
+          this.isLoading = false;
+          this.messageService.add({ severity: 'error', summary: 'Payment Failed', detail: response.error.description });
+        });
+        rzp.open();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        let errorMessage = 'Failed to initiate payment';
+        if (err.error && typeof err.error === 'string') {
+          errorMessage = err.error;
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        }
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: errorMessage });
+      }
+    });
+  }
+
+  private verifyAndPlaceOrder(items: any[], razorpayResponse: any) {
+    this.isLoading = true;
+    
+    // First, verify the payment and place the order in one go or sequentially
+    // Here we'll create the order with payment details
+    const orderData = {
+      addressId: this.selectedAddressId,
+      paymentType: 'UPI',
+      items: items,
+      razorpayOrderId: razorpayResponse.razorpay_order_id,
+      razorpayPaymentId: razorpayResponse.razorpay_payment_id,
+      razorpaySignature: razorpayResponse.razorpay_signature
+    };
+
+    // We need to update OrderService to handle these extra fields or use a separate verification step
+    // For now, let's assume OrderService.createOrder can handle them or we'll update it
+    this.orderService.createOrder(orderData.addressId, orderData.paymentType, orderData.items, 
+      orderData.razorpayOrderId, orderData.razorpayPaymentId, orderData.razorpaySignature).subscribe({
+      next: (order) => {
+        this.cartService.clearCart().subscribe(() => {
+          this.isLoading = false;
+          this.router.navigate(['/orders']);
+        });
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.messageService.add({ severity: 'error', summary: 'Order Error', detail: 'Payment successful, but order creation failed. Please contact support.' });
+      }
+    });
+  }
+
+  private placeCodOrder(items: any[]) {
     this.isLoading = true;
     this.orderService.createOrder(this.selectedAddressId, this.paymentMethod, items).subscribe({
       next: (order) => {

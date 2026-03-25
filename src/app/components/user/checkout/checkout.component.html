@@ -84,11 +84,11 @@
             </div>
           </div>
           
-          <div class="payment-method-card disabled">
-            <p-radioButton name="payment" value="UPI" [(ngModel)]="paymentMethod" inputId="upi" [disabled]="true"></p-radioButton>
+          <div class="payment-method-card" [class.active]="paymentMethod === 'UPI'" (click)="paymentMethod = 'UPI'">
+            <p-radioButton name="payment" value="UPI" [(ngModel)]="paymentMethod" inputId="upi"></p-radioButton>
             <div class="method-info">
-              <span class="method-name">UPI (Disabled)</span>
-              <span class="method-desc">Coming soon</span>
+              <span class="method-name">UPI / Net Banking / Card</span>
+              <span class="method-desc">Pay securely via Razorpay</span>
             </div>
           </div>
         </div>

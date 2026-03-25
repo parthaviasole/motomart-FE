@@ -34,8 +34,15 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  createOrder(addressId: string, paymentType: string, items: { productId: number, quantity: number }[]): Observable<Order> {
-    return this.http.post<Order>(this.apiUrl, { addressId, paymentType, items });
+  createOrder(addressId: string, paymentType: string, items: { productId: number, quantity: number }[], razorpayOrderId?: string, razorpayPaymentId?: string, razorpaySignature?: string): Observable<Order> {
+    return this.http.post<Order>(this.apiUrl, { 
+      addressId, 
+      paymentType, 
+      items, 
+      razorpayOrderId, 
+      razorpayPaymentId, 
+      razorpaySignature 
+    });
   }
 
   getUserOrders(pageNumber: number = 1, pageSize: number = 10, searchTerm?: string, date?: string, status?: string): Observable<PagedResult<Order>> {
