@@ -10,6 +10,7 @@
   align-items: center;
   padding-top: 0;
   margin-bottom: 1.25rem;
+  margin-top: 1.25rem;
 }
 
 .header-left {
@@ -66,6 +67,7 @@
   padding: 2rem 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   margin-bottom: 1.25rem;
+  margin-top: 1.25rem;
 }
 
 .text-center {
@@ -134,6 +136,17 @@
   align-items: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   margin-bottom: 1.5rem;
+}
+
+.profile-card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-top: 1.25rem; /* Added margin */
 }
 
 .profile-info {
