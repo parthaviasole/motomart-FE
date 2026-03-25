@@ -56,29 +56,26 @@
       </ng-template>
     </p-table>
 
-    <!-- Simplified Pagination Footer -->
-  <div class="table-footer-custom mt-4" *ngIf="totalRecords > 0">
-    <div class="total-count-display">
-      <span>{{ totalRecords }}</span> Users
-    </div>
     
-    <div class="pagination-controls">
-      <div class="page-buttons">
-        <button class="page-btn prev" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-          <i class="pi pi-chevron-left"></i>
-        </button>
-        
-        <ng-container *ngFor="let p of pagesArray">
-          <button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">
-            {{ p }}
+    <div class="table-footer-custom" *ngIf="totalCount > 0">
+      <div class="total-info">
+        Showing <strong>{{ (pageNumber - 1) * pageSize + 1 }}</strong> - <strong>{{ (pageNumber * pageSize) > totalCount ?
+          totalCount : (pageNumber * pageSize) }}</strong> of <strong>{{ totalCount }}</strong> orders
+      </div>
+    
+      <div class="pagination-right">
+        <div class="page-nav-btns">
+          <button pButton type="button" label="Previous" icon="pi pi-chevron-left"
+            class="p-button-text p-button-secondary p-button-sm nav-btn" [disabled]="pageNumber === 1"
+            (click)="goToPage(pageNumber - 1)">
           </button>
-        </ng-container>
-
-        <button class="page-btn next" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
-          <i class="pi pi-chevron-right"></i>
-        </button>
+          <div class="page-indicator">Page {{ pageNumber }} of {{ totalPages }}</div>
+          <button pButton type="button" label="Next" icon="pi pi-chevron-right" iconPos="right"
+            class="p-button-text p-button-secondary p-button-sm nav-btn" [disabled]="pageNumber === totalPages"
+            (click)="goToPage(pageNumber + 1)">
+          </button>
+        </div>
       </div>
     </div>
-  </div>
   </div>
 </div>
