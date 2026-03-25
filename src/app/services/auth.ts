@@ -4,6 +4,7 @@ import { Observable, tap } from 'rxjs';
 
 export interface AuthResponse {
   token: string;
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -18,14 +19,19 @@ export class AuthService {
   constructor(private http: HttpClient) { }
 
   register(user: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, user);
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, user).pipe(
+      tap(res => {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify({ id: res.id, name: res.name, email: res.email, role: res.role }));
+      })
+    );
   }
 
   login(credentials: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(res => {
         localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify({ name: res.name, email: res.email, role: res.role }));
+        localStorage.setItem('user', JSON.stringify({ id: res.id, name: res.name, email: res.email, role: res.role }));
       })
     );
   }
