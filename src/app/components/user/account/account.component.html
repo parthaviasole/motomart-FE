@@ -1,12 +1,6 @@
 <div class="profile-container">
   <p-toast></p-toast>
-  <div class="header">
-    <div class="header-left">
-      <button class="back-btn" *ngIf="isEditMode" (click)="cancelEdit()"><i class="pi pi-chevron-left"></i></button>
-      <h1>{{ isEditMode ? 'Edit Profile' : 'Profile' }}</h1>
-    </div>
-    <button class="more-btn" *ngIf="!isEditMode"><i class="pi pi-ellipsis-h"></i></button>
-  </div>
+
 
   <!-- Profile Card (View Mode) -->
   <div class="profile-card" *ngIf="!isEditMode">
