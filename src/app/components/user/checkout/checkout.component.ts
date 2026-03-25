@@ -8,12 +8,15 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputTextModule } from 'primeng/inputtext';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { LoaderComponent } from '../../shared/loader/loader.component';
 
 @Component({
   selector: 'app-user-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, InputTextModule, LoaderComponent],
+  imports: [CommonModule, FormsModule, ButtonModule, RadioButtonModule, InputTextModule, LoaderComponent, ToastModule],
+  providers: [MessageService],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.css'
 })
@@ -40,7 +43,8 @@ export class UserCheckoutComponent implements OnInit {
     private cartService: CartService,
     private orderService: OrderService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private messageService: MessageService
   ) {}
 
   ngOnInit() {
@@ -50,15 +54,22 @@ export class UserCheckoutComponent implements OnInit {
   }
 
   loadCartData() {
-    this.cartService.getCart().subscribe(items => {
-      this.cartItems = items || [];
-      this.total = this.calculateTotal(this.cartItems);
-      console.log('Cart items loaded in checkout:', this.cartItems);
-      if (this.cartItems.length === 0) {
-        this.router.navigate(['/cart']);
+    this.cartService.getCart().subscribe({
+      next: (items) => {
+        this.cartItems = items || [];
+        this.total = this.calculateTotal(this.cartItems);
+        console.log('Cart items loaded in checkout:', this.cartItems);
+        if (this.cartItems.length === 0) {
+          this.router.navigate(['/cart']);
+        }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error loading cart data:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load cart data' });
       }
-      this.isLoading = false;
-      this.cdr.detectChanges();
     });
   }
 
@@ -71,37 +82,52 @@ export class UserCheckoutComponent implements OnInit {
   }
 
   loadAddresses() {
-    this.addressService.getAddresses().subscribe(res => {
-      // Handle both direct array and wrapped { value: [] } responses
-      this.addresses = Array.isArray(res) ? res : ((res as any).value || []);
-      console.log('Addresses loaded:', this.addresses);
-      
-      if (this.addresses.length > 0) {
-        const defaultAddr = this.addresses.find(a => a.IsDefault || a.isDefault);
-        if (defaultAddr) {
-          this.selectedAddressId = defaultAddr.Id || defaultAddr.id;
-        } else {
-          this.selectedAddressId = this.addresses[0].Id || this.addresses[0].id;
+    this.addressService.getAddresses().subscribe({
+      next: (res) => {
+        // Handle both direct array and wrapped { value: [] } responses
+        this.addresses = Array.isArray(res) ? res : ((res as any).value || []);
+        console.log('Addresses loaded:', this.addresses);
+        
+        if (this.addresses.length > 0) {
+          const defaultAddr = this.addresses.find(a => a.IsDefault || a.isDefault);
+          if (defaultAddr) {
+            this.selectedAddressId = defaultAddr.Id || defaultAddr.id;
+          } else {
+            this.selectedAddressId = this.addresses[0].Id || this.addresses[0].id;
+          }
         }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error loading addresses:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load addresses' });
       }
-      this.isLoading = false;
-      this.cdr.detectChanges();
     });
   }
 
   addAddress() {
     this.isLoading = true;
-    this.addressService.createAddress(this.newAddress).subscribe(() => {
-      this.loadAddresses();
-      this.showAddAddress = false;
-      this.newAddress = { street: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false };
-      this.isLoading = false;
+    this.addressService.createAddress(this.newAddress).subscribe({
+      next: () => {
+        this.loadAddresses();
+        this.showAddAddress = false;
+        this.newAddress = { street: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false };
+        this.isLoading = false;
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Address added successfully' });
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error('Error adding address:', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to add address' });
+      }
     });
   }
 
   placeOrder() {
     if (!this.selectedAddressId) {
-      alert('Please select or add a delivery address');
+      this.messageService.add({ severity: 'warn', summary: 'Address Required', detail: 'Please select or add a delivery address' });
       return;
     }
 
@@ -121,7 +147,15 @@ export class UserCheckoutComponent implements OnInit {
       error: (err) => {
         this.isLoading = false;
         console.error('Error placing order:', err);
-        alert('Error placing order: ' + err.error);
+        
+        let errorMessage = 'Error placing order';
+        if (err.error && typeof err.error === 'string') {
+          errorMessage = err.error;
+        } else if (err.error?.message) {
+          errorMessage = err.error.message;
+        }
+        
+        this.messageService.add({ severity: 'error', summary: 'Order Failed', detail: errorMessage });
       }
     });
   }

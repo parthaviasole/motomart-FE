@@ -43,16 +43,27 @@ export class UserAccountComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.initializeUserFromStorage();
     this.loadProfile();
+  }
+
+  initializeUserFromStorage() {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        this.user = JSON.parse(storedUser);
+      } catch (e) {
+        console.error('Error parsing stored user:', e);
+      }
+    }
   }
 
   loadProfile() {
     this.userService.getProfile().subscribe({
       next: (profile) => {
         this.user = profile;
-        // Update localStorage to keep it in sync
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-        localStorage.setItem('user', JSON.stringify({ ...storedUser, name: profile.name, email: profile.email }));
+        // Update localStorage with the full profile
+        localStorage.setItem('user', JSON.stringify(profile));
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load profile' });
@@ -84,9 +95,8 @@ export class UserAccountComponent implements OnInit {
         this.isEditMode = false;
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' });
         
-        // Update localStorage
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-        localStorage.setItem('user', JSON.stringify({ ...storedUser, name: updatedUser.name, email: updatedUser.email }));
+        // Update localStorage with the full updated user
+        localStorage.setItem('user', JSON.stringify(updatedUser));
       },
       error: (err) => {
         let errorMessage = 'Update failed';
