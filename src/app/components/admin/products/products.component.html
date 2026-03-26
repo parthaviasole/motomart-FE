@@ -1,43 +1,34 @@
 <div class="products-container">
   <p-toast></p-toast>
   <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
-  <div class="content-card">
-    <div class="card-header">
-      <div class="header-left">
-        <h2 class="title-text">Products</h2>
-        <span class="subtitle-text">Manage and update your parts inventory</span>
-      </div>
-      <div class="header-actions">
-        <button pButton label="Add Product" icon="pi pi-plus" class="p-button-primary p-button-sm add-btn" (click)="showAddProductDialog()"></button>
-        <button pButton label="Bulk Upload" icon="pi pi-upload" class="p-button-outlined p-button-secondary p-button-sm ml-2 bulk-btn" (click)="showBulkUploadDialog()"></button>
-      </div>
+  
+  <div class="header-actions-container">
+    <div class="header-left">
+      <h2 class="title-text">Products</h2>
+      <span class="subtitle-text">Manage and update your parts inventory</span>
     </div>
+    <div class="header-actions">
+      <button pButton label="Add Product" icon="pi pi-plus" class="p-button-primary p-button-sm add-btn" (click)="showAddProductDialog()"></button>
+      <button pButton label="Bulk Upload" icon="pi pi-upload" class="p-button-outlined p-button-secondary p-button-sm ml-2 bulk-btn" (click)="showBulkUploadDialog()"></button>
+    </div>
+  </div>
 
-    <p-table
-      #dt
-      [value]="products"
-      [lazy]="true"
-      (onLazyLoad)="loadProducts($event)"
-      [paginator]="false"
-      [rows]="pageSize"
-      [totalRecords]="totalRecords"
-      styleClass="p-datatable-custom"
-      responsiveLayout="scroll"
-    >
-      <ng-template pTemplate="header">
+  <div class="content-card">
+    <table class="custom-products-table">
+      <thead>
         <tr>
-          <th style="width: 3rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-          <th><i class="pi pi-box header-icon"></i> Product Name</th>
-          <th class="hidden-mobile"><i class="pi pi-tag header-icon"></i> Type</th>
-          <th><i class="pi pi-dollar header-icon"></i> Price</th>
-          <th class="hidden-mobile"><i class="pi pi-database header-icon"></i> Stock</th>
-          <th class="hidden-mobile"><i class="pi pi-clock header-icon"></i> Created</th>
+          <th class="col-id">Id</th>
+          <th>Product Name</th>
+          <th class="hidden-mobile">Type</th>
+          <th>Price</th>
+          <th class="hidden-mobile">Stock</th>
+          <th class="hidden-mobile">Created Date</th>
           <th style="width: 8rem"></th>
         </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-product>
-        <tr class="product-row">
-          <td><p-tableCheckbox [value]="product"></p-tableCheckbox></td>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products; let i = index" [class.even-row]="i % 2 === 1">
+          <td class="col-id">{{ product.id }}</td>
           <td>
             <div class="product-info">
               <div class="avatar-placeholder-circle">
@@ -66,147 +57,133 @@
               {{ product.quantity }} units
             </span>
           </td>
-          <td class="hidden-mobile"><span class="created-date">{{ product.createdAt | date:'d MMM, yyyy' }}</span></td>
+          <td class="hidden-mobile"><span class="created-date">{{ product.createdAt | date:'MM/dd/yyyy' }}</span></td>
           <td class="actions-cell">
-            <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-secondary action-btn" (click)="editProduct(product)" pTooltip="Edit Product"></button>
-            <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger action-btn" (click)="confirmDelete(product)" pTooltip="Delete Product"></button>
+            <div class="action-buttons">
+              <button pButton icon="pi pi-pencil" class="p-button-text p-button-rounded p-button-secondary action-btn" (click)="editProduct(product)" pTooltip="Edit Product"></button>
+              <button pButton icon="pi pi-trash" class="p-button-text p-button-rounded p-button-danger action-btn" (click)="confirmDelete(product)" pTooltip="Delete Product"></button>
+            </div>
           </td>
         </tr>
-      </ng-template>
-    </p-table>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Add/Edit Product Dialog -->
-    <p-dialog [header]="isEditMode ? 'Edit Product' : 'Add New Product'" [(visible)]="displayAddDialog" [modal]="true" [style]="{width: '500px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
-      <ng-template pTemplate="content">
-        <div class="form-grid">
-          <div class="field mb-5 mt-2">
-            <p-floatLabel>
-              <input type="text" pInputText id="name" [(ngModel)]="newProduct.name" required />
-              <label for="name">Product Name</label>
-            </p-floatLabel>
-          </div>
-
-          <div class="field mb-5">
-            <p-floatLabel>
-              <input type="text" pInputText id="type" [(ngModel)]="newProduct.type" required />
-              <label for="type">Category / Type</label>
-            </p-floatLabel>
-          </div>
-
-          <div class="field-group mb-5">
-            <div class="field">
-              <p-floatLabel>
-                <input type="number" pInputText id="price" [(ngModel)]="newProduct.price" required />
-                <label for="price">Price ($)</label>
-              </p-floatLabel>
-            </div>
-            <div class="field">
-              <p-floatLabel>
-                <input type="number" pInputText id="quantity" [(ngModel)]="newProduct.quantity" required />
-                <label for="quantity">Stock Quantity</label>
-              </p-floatLabel>
-            </div>
-          </div>
-
-          <div class="field mb-5">
-            <p-floatLabel>
-              <textarea id="details" pTextarea [(ngModel)]="newProduct.details" rows="3" autoResize="false"></textarea>
-              <label for="details">Product Description</label>
-            </p-floatLabel>
-          </div>
-
-          <div class="field mb-2">
-            <div class="upload-controller" [class.has-file]="selectedFile">
-              <div class="upload-label">{{ isEditMode ? 'Update Image (Optional)' : 'Product Image' }}</div>
-              <div class="image-preview-container mb-3" *ngIf="imagePreview">
-                <img [src]="imagePreview" alt="Product Preview" class="product-preview-img" />
-                <button type="button" class="remove-image-btn" (click)="imagePreview = null; selectedFile = null;" pTooltip="Remove Image">
-                  <i class="pi pi-times"></i>
-                </button>
-              </div>
-              <div class="upload-input-wrapper">
-                <p-fileUpload mode="basic" name="demo[]" accept="image/*" maxFileSize="1000000" 
-                  (onSelect)="onFileSelect($event)" 
-                  chooseLabel="Browse Image" 
-                  styleClass="p-button-primary custom-upload-btn">
-                </p-fileUpload>
-                <div class="selected-file-name" *ngIf="selectedFile">
-                  <i class="pi pi-file"></i>
-                  <span>{{selectedFile.name}}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template pTemplate="footer">
-        <div class="dialog-footer">
-          <button pButton label="Cancel" icon="pi pi-times" class="cancel-btn" (click)="displayAddDialog = false"></button>
-          <button pButton [label]="isEditMode ? 'Update Product' : 'Create Product'" icon="pi pi-check" class="p-button-primary" [loading]="uploading" (click)="saveProduct()"></button>
-        </div>
-      </ng-template>
-    </p-dialog>
-
-    <!-- Bulk Upload Dialog -->
-    <p-dialog header="Bulk Upload Products" [(visible)]="displayBulkDialog" [modal]="true" [style]="{width: '400px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
-      <ng-template pTemplate="content">
-        <div class="bulk-upload-content">
-          <p class="mb-4">Select a CSV, XLS, or XLSX file to import multiple products at once.</p>
-          <div class="field mb-2">
-            <div class="upload-controller" [class.has-file]="selectedBulkFile">
-              <div class="upload-label">Excel / CSV File</div>
-              <div class="upload-input-wrapper">
-                <p-fileUpload mode="basic" name="bulk[]" accept=".csv, .xls, .xlsx" maxFileSize="5000000" 
-                  (onSelect)="onBulkFileSelect($event)" 
-                  chooseLabel="Browse File" 
-                  styleClass="p-button-primary custom-upload-btn">
-                </p-fileUpload>
-                <div class="selected-file-name" *ngIf="selectedBulkFile">
-                  <i class="pi pi-file"></i>
-                  <span>{{selectedBulkFile.name}}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template pTemplate="footer">
-        <div class="dialog-footer">
-          <button pButton label="Cancel" icon="pi pi-times" class="cancel-btn" (click)="displayBulkDialog = false"></button>
-          <button pButton label="Import" icon="pi pi-upload" class="p-button-primary" [loading]="bulkUploading" (click)="importProducts()"></button>
-        </div>
-      </ng-template>
-    </p-dialog>
-
-    <!-- Pagination Footer -->
-    <div class="table-footer-custom" *ngIf="totalRecords > 0">
-      <div class="total-info">
-        Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> - <strong>{{ (currentPage * pageSize) > totalRecords ? totalRecords : (currentPage * pageSize) }}</strong> of <strong>{{ totalRecords }}</strong> products
-      </div>
-      
-      <div class="pagination-right">
-        <div class="page-nav-btns">
-          <button 
-            pButton 
-            type="button" 
-            label="Previous" 
-            class="p-button-text p-button-secondary p-button-sm nav-btn"
-            [disabled]="currentPage === 1" 
-            (click)="goToPage(currentPage - 1)">
-          </button>
-          <div class="page-indicator">Page {{ currentPage }} of {{ totalPages }}</div>
-          <button 
-            pButton 
-            type="button" 
-            label="Next" 
-            class="p-button-text p-button-secondary p-button-sm nav-btn"
-            [disabled]="currentPage === totalPages" 
-            (click)="goToPage(currentPage + 1)">
-          </button>
-        </div>
-      </div>
+  <div class="custom-pager" *ngIf="totalRecords > 0">
+    <div class="pager-info">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ (currentPage * pageSize) > totalRecords ? totalRecords : (currentPage * pageSize) }} of {{ totalRecords }} entries
+    </div>
+    <div class="pager-controls">
+      <button class="pager-btn text-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Previous</button>
+      <button class="pager-btn num-btn" *ngFor="let page of pagesArray" [class.active]="page === currentPage" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="pager-btn text-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next</button>
     </div>
   </div>
+
+  <!-- Add/Edit Product Dialog -->
+  <p-dialog [header]="isEditMode ? 'Edit Product' : 'Add New Product'" [(visible)]="displayAddDialog" [modal]="true" [style]="{width: '500px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="content">
+      <div class="form-grid">
+        <div class="field">
+          <p-floatLabel>
+            <input type="text" pInputText id="name" [(ngModel)]="newProduct.name" required />
+            <label for="name">Product Name</label>
+          </p-floatLabel>
+        </div>
+
+        <div class="field">
+          <p-floatLabel>
+            <input type="text" pInputText id="type" [(ngModel)]="newProduct.type" required />
+            <label for="type">Category / Type</label>
+          </p-floatLabel>
+        </div>
+
+        <div class="field-group">
+          <div class="field">
+            <p-floatLabel>
+              <input type="number" pInputText id="price" [(ngModel)]="newProduct.price" required />
+              <label for="price">Price ($)</label>
+            </p-floatLabel>
+          </div>
+          <div class="field">
+            <p-floatLabel>
+              <input type="number" pInputText id="quantity" [(ngModel)]="newProduct.quantity" required />
+              <label for="quantity">Stock Quantity</label>
+            </p-floatLabel>
+          </div>
+        </div>
+
+        <div class="field">
+          <p-floatLabel>
+            <textarea id="details" pTextarea [(ngModel)]="newProduct.details" rows="3" autoResize="false"></textarea>
+            <label for="details">Product Description</label>
+          </p-floatLabel>
+        </div>
+
+        <div class="field">
+          <div class="upload-controller" [class.has-file]="selectedFile">
+            <div class="upload-label">{{ isEditMode ? 'Update Image (Optional)' : 'Product Image' }}</div>
+            <div class="image-preview-container" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Product Preview" class="product-preview-img" />
+              <button type="button" class="remove-image-btn" (click)="imagePreview = null; selectedFile = null;" pTooltip="Remove Image">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+            <div class="upload-input-wrapper">
+              <p-fileUpload mode="basic" name="demo[]" accept="image/*" maxFileSize="1000000" 
+                (onSelect)="onFileSelect($event)" 
+                chooseLabel="Browse Image" 
+                styleClass="p-button-primary custom-upload-btn">
+              </p-fileUpload>
+              <div class="selected-file-name" *ngIf="selectedFile">
+                <i class="pi pi-file"></i>
+                <span>{{selectedFile.name}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <button pButton label="Cancel" icon="pi pi-times" class="cancel-btn" (click)="displayAddDialog = false"></button>
+        <button pButton [label]="isEditMode ? 'Update Product' : 'Create Product'" icon="pi pi-check" class="p-button-primary" [loading]="uploading" (click)="saveProduct()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Bulk Upload Dialog -->
+  <p-dialog header="Bulk Upload Products" [(visible)]="displayBulkDialog" [modal]="true" [style]="{width: '400px'}" styleClass="p-fluid custom-dialog" [draggable]="false" [resizable]="false">
+    <ng-template pTemplate="content">
+      <div class="bulk-upload-content">
+        <p class="mb-4">Select a CSV, XLS, or XLSX file to import multiple products at once.</p>
+        <div class="field mb-2">
+          <div class="upload-controller" [class.has-file]="selectedBulkFile">
+            <div class="upload-label">Excel / CSV File</div>
+            <div class="upload-input-wrapper">
+              <p-fileUpload mode="basic" name="bulk[]" accept=".csv, .xls, .xlsx" maxFileSize="5000000" 
+                (onSelect)="onBulkFileSelect($event)" 
+                chooseLabel="Browse File" 
+                styleClass="p-button-primary custom-upload-btn">
+              </p-fileUpload>
+              <div class="selected-file-name" *ngIf="selectedBulkFile">
+                <i class="pi pi-file"></i>
+                <span>{{selectedBulkFile.name}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="dialog-footer">
+        <button pButton label="Cancel" icon="pi pi-times" class="cancel-btn" (click)="displayBulkDialog = false"></button>
+        <button pButton label="Import" icon="pi pi-upload" class="p-button-primary" [loading]="bulkUploading" (click)="importProducts()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
 </div>

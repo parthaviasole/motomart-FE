@@ -1,81 +1,38 @@
 <div class="users-container">
   <p-toast></p-toast>
   <div class="content-card">
-    <div class="card-header">
-      <h2>Users</h2>
-    </div>
-
-    <p-table
-      #dt
-      [value]="users"
-      [lazy]="true"
-      (onLazyLoad)="loadUsers($event)"
-      [paginator]="false"
-      [rows]="pageSize"
-      [totalRecords]="totalRecords"
-      styleClass="p-datatable-custom"
-      responsiveLayout="scroll"
-    >
-      <ng-template pTemplate="header">
+    <table class="custom-users-table">
+      <thead>
         <tr>
-          <th style="width: 3rem"><p-tableHeaderCheckbox></p-tableHeaderCheckbox></th>
-          <th><i class="pi pi-user header-icon"></i> Full Name</th>
-          <th class="hidden-mobile"><i class="pi pi-envelope header-icon"></i> Email</th>
-          <th class="hidden-mobile"><i class="pi pi-phone header-icon"></i> Phone</th>
-          <th><i class="pi pi-briefcase header-icon"></i> Role</th>
-          <th class="hidden-mobile"><i class="pi pi-clock header-icon"></i> Joined Date</th>
-          <th style="width: 3rem"></th>
+          <th class="col-id">Id</th>
+          <th class="col-name">Name</th>
+          <th class="col-email">Email</th>
+          <th class="col-phone">Phone</th>
+          <th class="col-date">Created Date</th>
         </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-user>
-        <tr class="user-row">
-          <td><p-tableCheckbox [value]="user"></p-tableCheckbox></td>
-          <td>
-            <div class="user-info">
-              <div class="avatar-placeholder-circle">{{ user.name.charAt(0) }}</div>
-              <div class="user-details-mobile">
-                <span class="user-name">{{ user.name }}</span>
-                <span class="user-email-mobile visible-mobile">{{ user.email }}</span>
-              </div>
-            </div>
-          </td>
-          <td class="hidden-mobile"><span class="email-text">{{ user.email }}</span></td>
-          <td class="hidden-mobile"><span class="phone-text">{{ user.phoneNumber || 'N/A' }}</span></td>
-          <td>
-            <span class="role-pill" [ngClass]="'role-' + user.role.toLowerCase()">
-              {{ user.role }}
-            </span>
-          </td>
-          <td class="hidden-mobile">
-            <span class="created-date">{{ user.createdAt | date:'d MMM, yyyy' }}</span>
-          </td>
-          <td>
-            <button pButton type="button" icon="pi pi-ellipsis-h" class="p-button-text p-button-secondary action-btn"></button>
-          </td>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users; let i = index" [class.even-row]="i % 2 === 1">
+          <td class="col-id">{{ user.id }}</td>
+          <td class="col-name">{{ user.name }}</td>
+          <td class="col-email">{{ user.email }}</td>
+          <td class="col-phone">{{ user.phoneNumber || '-' }}</td>
+          <td class="col-date">{{ user.createdAt | date:'MM/dd/yyyy' }}</td>
         </tr>
-      </ng-template>
-    </p-table>
-
-    
-    <div class="table-footer-custom" *ngIf="totalCount > 0">
-      <div class="total-info">
-        Showing <strong>{{ (pageNumber - 1) * pageSize + 1 }}</strong> - <strong>{{ (pageNumber * pageSize) > totalCount ?
-          totalCount : (pageNumber * pageSize) }}</strong> of <strong>{{ totalCount }}</strong> orders
-      </div>
-    
-      <div class="pagination-right">
-        <div class="page-nav-btns">
-          <button pButton type="button" label="Previous" icon="pi pi-chevron-left"
-            class="p-button-text p-button-secondary p-button-sm nav-btn" [disabled]="pageNumber === 1"
-            (click)="goToPage(pageNumber - 1)">
-          </button>
-          <div class="page-indicator">Page {{ pageNumber }} of {{ totalPages }}</div>
-          <button pButton type="button" label="Next" icon="pi pi-chevron-right" iconPos="right"
-            class="p-button-text p-button-secondary p-button-sm nav-btn" [disabled]="pageNumber === totalPages"
-            (click)="goToPage(pageNumber + 1)">
-          </button>
-        </div>
-      </div>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="custom-pager" *ngIf="totalCount > 0">
+    <div class="pager-info">
+      Showing {{ (pageNumber - 1) * pageSize + 1 }} to {{ (pageNumber * pageSize) > totalCount ? totalCount : (pageNumber * pageSize) }} of {{ totalCount }} entries
+    </div>
+    <div class="pager-controls">
+      <button class="pager-btn text-btn" [disabled]="pageNumber === 1" (click)="goToPage(pageNumber - 1)">Previous</button>
+      <button class="pager-btn num-btn" *ngFor="let page of pagesArray" [class.active]="page === pageNumber" (click)="goToPage(page)">
+        {{ page }}
+      </button>
+      <button class="pager-btn text-btn" [disabled]="pageNumber === totalPages" (click)="goToPage(pageNumber + 1)">Next</button>
     </div>
   </div>
 </div>

@@ -1,13 +1,11 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService, Order } from '../../../services/order.service';
-import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { PaginatorModule } from 'primeng/paginator';
 import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
@@ -16,14 +14,12 @@ import { ToastModule } from 'primeng/toast';
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, DialogModule, InputTextModule, PaginatorModule, TooltipModule, SelectModule, ToastModule],
+  imports: [CommonModule, FormsModule, TagModule, ButtonModule, DialogModule, InputTextModule, TooltipModule, SelectModule, ToastModule],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.css',
   providers: [MessageService]
 })
 export class AdminOrdersComponent implements OnInit {
-  @ViewChild('dt') table!: Table;
-
   orders: any[] = [];
   totalCount: number = 0;
   totalPages: number = 0;
@@ -52,12 +48,14 @@ export class AdminOrdersComponent implements OnInit {
     private messageService: MessageService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadOrders(null);
+  }
 
   loadOrders(event?: any) {
     if (event) {
-      this.pageNumber = Math.floor(event.first / event.rows) + 1;
-      this.pageSize = event.rows;
+      this.pageNumber = Math.floor((event.first || 0) / (event.rows || this.pageSize)) + 1;
+      this.pageSize = event.rows || this.pageSize;
     }
 
     this.orderService.getAllOrders(this.pageNumber, this.pageSize, this.searchTerm, undefined, this.selectedStatus).subscribe({
@@ -90,41 +88,25 @@ export class AdminOrdersComponent implements OnInit {
   }
 
   onSearchChange() {
-    setTimeout(() => {
-      this.table.onLazyLoad.emit({
-        first: 0,
-        rows: this.pageSize
-      });
-    });
+    this.pageNumber = 1;
+    this.loadOrders(null);
   }
 
   onStatusChange() {
-    setTimeout(() => {
-      this.table.onLazyLoad.emit({
-        first: 0,
-        rows: this.pageSize
-      });
-    });
+    this.pageNumber = 1;
+    this.loadOrders(null);
   }
 
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
-    setTimeout(() => {
-      this.table.onLazyLoad.emit({
-        first: (page - 1) * this.pageSize,
-        rows: this.pageSize
-      });
-    });
+    this.pageNumber = page;
+    this.loadOrders(null);
   }
 
   changePageSize(newSize: number) {
     this.pageSize = newSize;
-    setTimeout(() => {
-      this.table.onLazyLoad.emit({
-        first: 0,
-        rows: this.pageSize
-      });
-    });
+    this.pageNumber = 1;
+    this.loadOrders(null);
   }
 
   viewDetails(order: any) {
@@ -135,9 +117,7 @@ export class AdminOrdersComponent implements OnInit {
   proceedToDelivery(orderId: string) {
     this.orderService.updateOrderStatus(orderId, 'Out for Delivery').subscribe(() => {
       this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Order status updated. OTP sent to user.' });
-      setTimeout(() => {
-        this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
-      });
+      this.loadOrders(null);
     });
   }
 
@@ -152,9 +132,7 @@ export class AdminOrdersComponent implements OnInit {
       next: () => {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'OTP Verified! Order marked as Delivered.' });
         this.displayOtpDialog = false;
-        setTimeout(() => {
-          this.table.onLazyLoad.emit({ first: (this.pageNumber - 1) * this.pageSize, rows: this.pageSize });
-        });
+        this.loadOrders(null);
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid OTP. Please try again or resend OTP.' });

@@ -1,7 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { User, UserService } from '../../../services/user.service';
-import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +12,6 @@ import { ToastModule } from 'primeng/toast';
   standalone: true,
   imports: [
     CommonModule, 
-    TableModule, 
     ButtonModule, 
     InputTextModule, 
     FormsModule, 
@@ -24,8 +22,6 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './users.component.css'
 })
 export class AdminUsersComponent implements OnInit {
-  @ViewChild('dt') table!: Table;
-
   totalCount: number = 0;
   totalPages: number = 0;
   pageSize: number = 10;
@@ -42,7 +38,9 @@ export class AdminUsersComponent implements OnInit {
     private messageService: MessageService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadUsers(null);
+  }
 
   loadUsers(event: any) {
       if (event) {
@@ -79,21 +77,13 @@ export class AdminUsersComponent implements OnInit {
 
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
-    setTimeout(() => {
-      this.table.onLazyLoad.emit({
-        first: (page - 1) * this.pageSize,
-        rows: this.pageSize
-      });
-    });
+    this.currentPage = page;
+    this.loadUsers(null);
   }
 
   changePageSize(newSize: number) {
     this.pageSize = newSize;
-    setTimeout(() => {
-      this.table.onLazyLoad.emit({
-        first: 0,
-        rows: this.pageSize
-      });
-    });
+    this.currentPage = 1;
+    this.loadUsers(null);
   }
 }
