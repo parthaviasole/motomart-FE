@@ -9,11 +9,13 @@ export interface DashboardStats {
   totalProducts: number;
 }
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = 'http://localhost:5237/api/dashboard';
+  private apiUrl = `${environment.apiUrl}/api/dashboard`;
 
   constructor(private http: HttpClient) { }
 
