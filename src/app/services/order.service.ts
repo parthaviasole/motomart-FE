@@ -32,7 +32,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = `${environment.apiUrl}/api/orders`;
+  private apiUrl = `${environment.apiUrl}/orders`;
 
   constructor(private http: HttpClient) {}
 
