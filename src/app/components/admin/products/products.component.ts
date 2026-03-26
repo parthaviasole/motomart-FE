@@ -1,7 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product, ProductService, PagedResult } from '../../../services/product.service';
-import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
@@ -18,7 +17,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   standalone: true,
   imports: [
     CommonModule, 
-    TableModule, 
     ButtonModule, 
     InputTextModule, 
     DialogModule, 
@@ -34,8 +32,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   styleUrl: './products.component.css'
 })
 export class AdminProductsComponent implements OnInit {
-  @ViewChild('dt') table!: Table;
-  
   products: Product[] = [];
   totalRecords = 0;
   totalPages = 0;
@@ -67,11 +63,15 @@ export class AdminProductsComponent implements OnInit {
     private confirmationService: ConfirmationService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadProducts(null);
+  }
 
   loadProducts(event: any) {
-    this.currentPage = Math.floor(event.first / event.rows) + 1;
-    this.pageSize = event.rows;
+    if (event) {
+      this.currentPage = Math.floor((event.first || 0) / (event.rows || this.pageSize)) + 1;
+      this.pageSize = event.rows || this.pageSize;
+    }
 
     this.productService.getProducts(this.currentPage, this.pageSize).subscribe({
       next: (res) => {
@@ -102,12 +102,8 @@ export class AdminProductsComponent implements OnInit {
 
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages) return;
-    setTimeout(() => {
-      this.table.onLazyLoad.emit({
-        first: (page - 1) * this.pageSize,
-        rows: this.pageSize
-      });
-    });
+    this.currentPage = page;
+    this.loadProducts(null);
   }
 
   showAddProductDialog() {
@@ -139,7 +135,7 @@ export class AdminProductsComponent implements OnInit {
         this.productService.deleteProduct(product.id).subscribe({
           next: () => {
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Product deleted successfully' });
-            this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize });
+            this.loadProducts(null);
           },
           error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete product' })
         });
@@ -192,7 +188,7 @@ export class AdminProductsComponent implements OnInit {
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Products imported successfully' });
         this.displayBulkDialog = false;
         this.bulkUploading = false;
-        this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize }); // Refresh grid
+        this.loadProducts(null); // Refresh grid
       },
       error: (err) => {
         console.error('Import error:', err);
@@ -244,6 +240,6 @@ export class AdminProductsComponent implements OnInit {
     });
     this.displayAddDialog = false;
     this.uploading = false;
-    this.table.onLazyLoad.emit({ first: 0, rows: this.pageSize });
+    this.loadProducts(null);
   }
 }
