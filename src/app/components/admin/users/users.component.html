@@ -1,6 +1,6 @@
 <div class="users-container">
   <p-toast></p-toast>
-  <div class="content-card">
+  <div class="content-card desktop-only">
     <table class="custom-users-table">
       <thead>
         <tr>
@@ -16,11 +16,39 @@
           <td class="col-id">{{ user.id }}</td>
           <td class="col-name">{{ user.name }}</td>
           <td class="col-email">{{ user.email }}</td>
-          <td class="col-phone">{{ user.phoneNumber || '-' }}</td>
+          <td class="col-phone">{{ user.phoneNumber }}</td>
           <td class="col-date">{{ user.createdAt | date:'MM/dd/yyyy' }}</td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Mobile Card View -->
+  <div class="mobile-cards-container mobile-only">
+    <div class="user-card" *ngFor="let user of users">
+      <div class="card-header">
+        <span class="card-id">Id : {{ user.id }}</span>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">User Name</span>
+          <span class="value">{{ user.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Email</span>
+          <span class="value">{{ user.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Phone</span>
+          <span class="value">{{ user.phoneNumber }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Joined Date</span>
+          <span class="value">{{ user.createdAt | date:'MM/dd/yyyy' }}</span>
+        </div>
+      </div>
+    </div>
   </div>
   
   <div class="custom-pager" *ngIf="totalCount > 0">

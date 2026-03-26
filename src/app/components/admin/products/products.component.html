@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <div class="content-card">
+  <div class="content-card desktop-only">
     <table class="custom-products-table">
       <thead>
         <tr>
@@ -67,6 +67,45 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Mobile Card View -->
+  <div class="mobile-cards-container mobile-only">
+    <div class="product-card" *ngFor="let product of products">
+      <div class="card-header">
+        <div class="card-header-left">
+          <img *ngIf="product.imageUrl" [src]="product.imageUrl" class="card-header-img" />
+          <span class="card-id">Id : {{ product.id }}</span>
+        </div>
+        <div class="card-actions">
+          <button pButton icon="pi pi-pencil" class="p-button-text p-button-sm action-btn edit-btn" (click)="editProduct(product)"></button>
+          <button pButton icon="pi pi-trash" class="p-button-text p-button-sm action-btn delete-btn" (click)="confirmDelete(product)"></button>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Product Name</span>
+          <span class="value">{{ product.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Category</span>
+          <span class="value">{{ product.type }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Price</span>
+          <span class="value">{{ product.price | currency }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Stock</span>
+          <span class="value" [class.low-stock]="product.quantity < 10">{{ product.quantity }} units</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Created Date</span>
+          <span class="value">{{ product.createdAt | date:'MM/dd/yyyy' }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="custom-pager" *ngIf="totalRecords > 0">

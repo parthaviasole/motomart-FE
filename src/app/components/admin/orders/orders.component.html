@@ -8,7 +8,7 @@
     <p-select [options]="statusOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusChange()" placeholder="Filter Status" styleClass="p-select-sm status-select"></p-select>
   </div>
 
-  <div class="content-card">
+  <div class="content-card desktop-only">
     <table class="custom-orders-table">
         <thead>
           <tr>
@@ -27,7 +27,7 @@
             <td class="col-name">{{ order.user?.name || order.User?.name || 'Guest' }}</td>
             <td class="col-email">{{ order.user?.email || order.User?.email || '-' }}</td>
             <td class="col-date">{{ (order.createdAt || order.CreatedAt) | date:'MM/dd/yyyy' }}</td>
-            <td class="col-total">{{ order.totalAmount || order.TotalAmount }}</td>
+            <td class="col-total">${{ order.totalAmount || order.TotalAmount }}</td>
             <td class="col-status">
               <span class="status-pill" [ngClass]="'status-' + (order.status || order.Status || '').toLowerCase().replace(' ', '-')">
                 {{ order.status || order.Status }}
@@ -44,6 +44,51 @@
           </tr>
         </tbody>
       </table>
+  </div>
+
+  <!-- Mobile Card View -->
+  <div class="mobile-cards-container mobile-only">
+    <div class="order-card" *ngFor="let order of orders">
+      <div class="card-header">
+        <span class="card-id">Id : {{ order.id || order.Id }}</span>
+        <div class="card-actions">
+          <button pButton icon="pi pi-eye" class="p-button-text p-button-sm action-btn view-btn" (click)="viewDetails(order)"></button>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-row">
+          <span class="label">Customer Name</span>
+          <span class="value">{{ order.user?.name || order.User?.name || 'Guest' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Email</span>
+          <span class="value">{{ order.user?.email || order.User?.email || '-' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Total Amount</span>
+          <span class="value">${{ order.totalAmount || order.TotalAmount }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Created Date</span>
+          <span class="value">{{ (order.createdAt || order.CreatedAt) | date:'MM/dd/yyyy' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Status</span>
+          <span class="value">
+            <span class="status-text" [ngClass]="'text-' + (order.status || order.Status || '').toLowerCase().replace(' ', '-')">
+              {{ order.status || order.Status }}
+            </span>
+          </span>
+        </div>
+        
+        <div class="card-footer-actions">
+          <button pButton label="Start Delivery" icon="pi pi-truck" class="p-button-success p-button-sm w-full" *ngIf="(order.status || order.Status) === 'Pending'" (click)="proceedToDelivery(order.id || order.Id)"></button>
+          <button pButton label="Verify OTP" icon="pi pi-key" class="p-button-warning p-button-sm w-full" *ngIf="(order.status || order.Status) === 'Out for Delivery'" (click)="openOtpDialog(order.id || order.Id)"></button>
+          <button pButton label="Completed" icon="pi pi-check" class="p-button-secondary p-button-sm w-full" *ngIf="(order.status || order.Status) === 'Delivered'" [disabled]="true"></button>
+        </div>
+      </div>
+    </div>
   </div>
 
     <div class="custom-pager" *ngIf="totalCount > 0">
