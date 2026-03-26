@@ -26,11 +26,13 @@ export interface Order {
   address?: any;
 }
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = 'http://localhost:5237/api/orders';
+  private apiUrl = `${environment.apiUrl}/api/orders`;
 
   constructor(private http: HttpClient) {}
 

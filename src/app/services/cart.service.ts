@@ -11,11 +11,13 @@ export interface CartItem {
   product?: Product;
 }
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
-  private apiUrl = 'http://localhost:5237/api/cart';
+  private apiUrl = `${environment.apiUrl}/api/cart`;
   private cartItemsSubject = new BehaviorSubject<CartItem[] | null>(null);
   cartItems$ = this.cartItemsSubject.asObservable();
 
