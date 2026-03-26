@@ -31,11 +31,13 @@ export interface AddressCreateDto {
   isDefault: boolean;
 }
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AddressService {
-  private apiUrl = 'http://localhost:5237/api/addresses';
+  private apiUrl = `${environment.apiUrl}/api/addresses`;
 
   constructor(private http: HttpClient) { }
 

@@ -23,11 +23,13 @@ export interface PagedResult<T> {
   hasNext: boolean;
 }
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:5237/api/products';
+  private apiUrl = `${environment.apiUrl}/api/products`;
 
   constructor(private http: HttpClient) { }
 
