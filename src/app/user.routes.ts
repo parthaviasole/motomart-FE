@@ -8,10 +8,13 @@ import { UserCheckoutComponent } from './components/user/checkout/checkout.compo
 import { UserAccountComponent } from './components/user/account/account.component';
 import { AddressBookComponent } from './components/user/address-book/address-book.component';
 
+import { AuthGuard } from './auth.guard';
+
 export const userRoutes: Routes = [
   {
     path: '',
     component: UserLayoutComponent,
+    canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: UserHomeComponent },
       { path: 'products', component: UserProductsComponent },
