@@ -37,7 +37,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AddressService {
-  private apiUrl = `${environment.apiUrl}/api/addresses`;
+  private apiUrl = `${environment.apiUrl}/addresses`;
 
   constructor(private http: HttpClient) { }
 

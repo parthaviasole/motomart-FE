@@ -15,7 +15,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class DashboardService {
-  private apiUrl = `${environment.apiUrl}/api/dashboard`;
+  private apiUrl = `${environment.apiUrl}/dashboard`;
 
   constructor(private http: HttpClient) { }
 

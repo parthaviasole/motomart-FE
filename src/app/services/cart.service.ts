@@ -17,7 +17,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class CartService {
-  private apiUrl = `${environment.apiUrl}/api/cart`;
+  private apiUrl = `${environment.apiUrl}/cart`;
   private cartItemsSubject = new BehaviorSubject<CartItem[] | null>(null);
   cartItems$ = this.cartItemsSubject.asObservable();
 
